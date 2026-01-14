@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>🕌 Daily Habit Tracker ({{ today.strftime('%A, %b %d, %Y') }})</h2>
+    
+    <form method="POST" class="habit-form">
+        <div class="habit-group">
+            <h3>Five Daily Prayers</h3>
+            <label class="checkbox-container">Fajr
+                <input type="checkbox" name="fajr" {% if habit.fajr %}checked{% endif %}>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkbox-container">Zuhr
+                <input type="checkbox" name="zuhr" {% if habit.zuhr %}checked{% endif %}>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkbox-container">Asr
+                <input type="checkbox" name="asr" {% if habit.asr %}checked{% endif %}>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkbox-container">Maghrib
+                <input type="checkbox" name="maghrib" {% if habit.maghrib %}checked{% endif %}>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkbox-container">Isha
+                <input type="checkbox" name="isha" {% if habit.isha %}checked{% endif %}>
+                <span class="checkmark"></span>
+            </label>
+        </div>
+
+        <div class="habit-group">
+            <h3>Spiritual & Self-Control</h3>
+            <label class="checkbox-container">Quran Reading
+                <input type="checkbox" name="quran" {% if habit.quran %}checked{% endif %}>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkbox-container success">NoFap (Clean Day)
+                <input type="checkbox" name="nofap" {% if habit.nofap %}checked{% endif %}>
+                <span class="checkmark"></span>
+            </label>
+        </div>
+
+        <div class="habit-group">
+            <h3>Productivity</h3>
+            <label for="coding_hours">Coding Hours Logged:</label>
+            <input type="number" step="0.5" min="0" id="coding_hours" name="coding_hours" value="{{ '%.1f' % habit.coding_hours }}" placeholder="0.0">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Today's Progress</button>
+    </form>
+{% endblock %}

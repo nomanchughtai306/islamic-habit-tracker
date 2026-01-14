@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="progress-header">
+    <h2>📈 Your Spiritual & Productivity Growth</h2>
+    <p>Visualizing the last 21 days for <strong>{{ current_user.username }}</strong></p>
+</div>
+
+<div class="chart-container">
+    <h3>🕌 Prayer Completion & Quran Consistency</h3>
+    <canvas id="spiritualChart"></canvas>
+</div>
+
+<div class="chart-container">
+    <h3>🧠 Urge Control (Lower is Better)</h3>
+    <canvas id="urgeChart"></canvas>
+</div>
+
+<div class="chart-container">
+    <h3>💻 Coding Hours</h3>
+    <canvas id="codingChart"></canvas>
+</div>
+
+<div class="chart-container">
+    <h3>🔥 NoFap Clean Streak</h3>
+    <canvas id="nofapChart"></canvas>
+    <div class="streak-badge" id="streakDisplay">Calculating...</div>
+</div>
+
+<script>
+    const data = {{ chart_data | tojson | safe }};
+
+    // --- 1. Spiritual Chart (Combined Prayers & Quran) ---
+    new Chart(document.getElementById('spiritualChart'), {
+        type: 'line',
+        data: {
+            labels: data.labels,
+            datasets: [
+                {
+                    label: 'Prayers %',
+                    data: data.prayer_percents,
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    fill: true,
+                    tension: 0.4 // Restores the smooth curves
+                },
+                {
+                    label: 'Quran Read (1=Yes)',
+                    data: data.quran_status,
+                    borderColor: '#007bff',
+                    borderDash: [5, 5],
+                    fill: false,
+                    tension: 0
+                }
+            ]
+        },
+        options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
+    });
+
+    // --- 2. Urge Chart (The "Better" Red Line) ---
+    new Chart(document.getElementById('urgeChart'), {
+        type: 'line',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: 'Urge Level',
+                data: data.urge_levels,
+                borderColor: '#dc3545',
+                backgroundColor: 'rgba(220, 53, 69, 0.2)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: { responsive: true, scales: { y: { beginAtZero: true, max: 10 } } }
+    });
+
+    // --- 3. Coding Chart ---
+    new Chart(document.getElementById('codingChart'), {
+        type: 'bar',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: 'Hours',
+                data: data.coding_hours,
+                backgroundColor: '#17a2b8'
+            }]
+        }
+    });
+
+    // --- 4. NoFap Streak ---
+    new Chart(document.getElementById('nofapChart'), {
+        type: 'bar',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: 'Clean Day',
+                data: data.nofap_days,
+                backgroundColor: (ctx) => ctx.raw === 1 ? '#28a745' : '#e9ecef'
+            }]
+        },
+        options: { scales: { y: { display: false } } }
+    });
+
+    // Streak Logic
+    const streak = data.nofap_days.reverse().indexOf(0);
+    const finalStreak = streak === -1 ? data.nofap_days.length : streak;
+    document.getElementById('streakDisplay').innerText = `Current Streak: ${finalStreak} Days`;
+</script>
+
+<style>
+    .chart-container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 30px; }
+    .streak-badge { text-align: center; font-size: 1.5rem; font-weight: bold; color: #28a745; margin-top: 10px; }
+    .progress-header { text-align: center; margin-bottom: 30px; }
+</style>
+{% endblock %}

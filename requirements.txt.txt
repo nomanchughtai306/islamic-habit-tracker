@@ -1,0 +1,5 @@
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+python-dotenv  # Good practice for environment variables
+gunicorn       # For deployment (optional, but good practice)

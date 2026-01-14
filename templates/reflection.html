@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Quran & Sunnah Reflection Journal</h2>
+
+    <form method="POST" class="reflection-form">
+        <div class="form-row">
+            <label for="reference">Ayah/Hadith Reference (Optional):</label>
+            <input type="text" id="reference" name="reference" placeholder="e.g., Quran 2:153 or Sahih Muslim 2580">
+        </div>
+        <div class="form-row">
+            <label for="note">Reflection Note (Required):</label>
+            <textarea id="note" name="note" rows="5" required placeholder="What did you learn? How will you apply this?"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Reflection</button>
+    </form>
+
+    <h3 class="mt-4">Recent Reflections</h3>
+    {% if reflections %}
+        <div class="reflections-list">
+            {% for reflection in reflections %}
+                <div class="reflection-card">
+                    <p class="reflection-date">{{ reflection.date.strftime('%b %d, %Y') }}</p>
+                    {% if reflection.reference %}
+                        <p class="reflection-ref">Reference: **{{ reflection.reference }}**</p>
+                    {% endif %}
+                    <div class="reflection-note">{{ reflection.note | replace('\n', '<br>') | safe }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No reflections recorded yet. Start your journal!</p>
+    {% endif %}
+{% endblock %}
