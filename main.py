@@ -171,6 +171,38 @@ def reflections():
     
     refls = Reflection.query.filter_by(user_id=current_user.id).order_by(desc(Reflection.date)).all()
     return render_template('reflection.html', reflections=refls)
+# --- Edit Reflection ---
+@app.route('/reflection/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_reflection(id):
+    # Ensure the reflection belongs to the current user
+    reflection = Reflection.query.get_or_404(id)
+    if reflection.user_id != current_user.id:
+        flash("You do not have permission to edit this.", "danger")
+        return redirect(url_for('reflections'))
+
+    if request.method == 'POST':
+        reflection.reference = request.form.get('reference')
+        reflection.note = request.form.get('note')
+        db.session.commit()
+        flash("Reflection updated!", "success")
+        return redirect(url_for('reflections'))
+    
+    return render_template('edit_reflection.html', reflection=reflection)
+
+# --- Delete Reflection ---
+@app.route('/reflection/delete/<int:id>', methods=['POST'])
+@login_required
+def delete_reflection(id):
+    reflection = Reflection.query.get_or_404(id)
+    if reflection.user_id != current_user.id:
+        flash("Unauthorized action.", "danger")
+        return redirect(url_for('reflections'))
+    
+    db.session.delete(reflection)
+    db.session.commit()
+    flash("Reflection deleted.", "info")
+    return redirect(url_for('reflections'))
 
 @app.route('/progress')
 @login_required

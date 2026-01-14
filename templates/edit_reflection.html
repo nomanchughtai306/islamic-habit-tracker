@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>✏️ Edit Reflection</h2>
+    <form method="POST" class="log-form">
+        <label>Reference (Surah/Hadith/Book)</label>
+        <input type="text" name="reference" value="{{ reflection.reference }}">
+        
+        <label>Your Note</label>
+        <textarea name="note" rows="5" required>{{ reflection.note }}</textarea>
+        
+        <button type="submit" class="btn btn-primary">Update Reflection</button>
+        <a href="{{ url_for('reflections') }}" class="btn-cancel">Cancel</a>
+    </form>
+{% endblock %}
+
