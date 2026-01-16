@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,38 +9,43 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
+
 <body>
     <header>
         <nav class="navbar">
-    <a href="/" class="nav-brand">Habit Tracker</a>
-    <div class="nav-links">
-        {% if current_user.is_authenticated %}
+            <div class="nav-left">
+                <a href="/" class="nav-brand">Habit Tracker</a>
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="navbar-logo">
+            </div>
+            <div class="nav-links">
+            {% if current_user.is_authenticated %}
             <a href="/" class="nav-item">Dashboard</a>
             <a href="/logs" class="nav-item">Daily Logs</a>
             <a href="/reflection" class="nav-item">Reflections</a>
             <a href="/progress" class="nav-item">Progress</a>
             <a href="/logout" class="nav-item">Logout ({{ current_user.username }})</a>
-        {% else %}
+            {% else %}
             <a href="/login" class="nav-item">Login</a>
             <a href="/register" class="nav-item">Register</a>
-        {% endif %}
-    </div>
-</nav>
+            {% endif %}
+            </div>
+        </nav>
     </header>
 
     <main class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
-                {% endfor %}
-                </ul>
-            {% endif %}
+        {% if messages %}
+        <ul class="flashes">
+            {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
         {% endwith %}
 
         {% block content %}{% endblock %}
     </main>
-    
+
 </body>
+
 </html>

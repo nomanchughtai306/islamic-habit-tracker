@@ -1,7 +1,7 @@
 /* General Styling */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
+    background-color: #b40000;
     color: #333;
     margin: 0;
     padding-top: 60px; /* Space for fixed navbar */
@@ -14,40 +14,101 @@ body {
     padding: 20px;
 }
 
-h2, h3 { color: #007bff; border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
+h2, h3 { color: #000000; border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
 
-/* Navigation Bar */
+
 .navbar {
+    display: flex;
+    justify-content: space-between; /* Pushes nav-left to one side and links to the other */
+    align-items: center;
+    padding: 15px 20px;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    background-color: #438a13;
+    background-color: #522f02;
     color: white;
-    padding: 10px 0;
+    /* 1. Increased height by changing padding from 10px to 15px */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(255, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Changed red shadow to subtle black */
     z-index: 1000;
+    box-decoration-break: slice;
 }
+
+@media (max-width: 600px) {
+    .nav-left {
+        justify-content: center;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+
+/* 1. Group brand and logo together */
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* This controls the distance between text and logo */
+}
+
+/* 2. Style the logo size */
+.navbar-logo {
+    height: 70px; /* Adjust this to fit your navbar height */
+    width: auto;  /* Keeps the image from stretching */
+    border-radius: 5px; /* Optional: rounds the corners of your jpg */
+}
+
 .nav-brand {
-    font-size: 1.5em;
+    font-size: 2.2em;
     font-weight: bold;
     margin-left: 20px;
     color: white;
     text-decoration: none;
 }
+.logo {
+width: 20px;
+height: 10px;
+}
+
 .nav-links a {
     color: white;
+    font-weight: bold;
     text-decoration: none;
     padding: 10px 15px;
-    margin-right: 5px;
-}
-.nav-links a:hover {
-    background-color: #0056b3;
+    margin-right: 10px; /* Increased margin for desktop */
+    
+    /* 2. Added border lines to links */
+    border: 1px solid rgba(255, 255, 255, 0.3); 
     border-radius: 4px;
+    transition: all 0.3s ease;
 }
+
+.nav-links a:hover {
+    background-color: #720505; /* Darker green hover to match theme */
+    border-color: white;
+}
+
+/* 3. Mobile handling: prevent links from getting too close */
+@media (max-width: 600px) {
+    .navbar {
+        flex-direction: column; /* Stacks Brand and Links vertically */
+        padding: 20px 0;
+    }
+    
+    .nav-links {
+        margin-top: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .nav-links a {
+        margin: 5px; /* Adds space all around the link on small screens */
+        font-size: 0.9em;
+    }
+}
+
 
 /* Flash Messages */
 .flashes {
@@ -170,12 +231,12 @@ input[type="text"], input[type="number"], textarea, select {
 }
 .reflection-date {
     font-size: 0.9em;
-    color: #888;
+    color: #ffffff;
     margin-bottom: 5px;
 }
 .reflection-ref {
     font-weight: bold;
-    color: #333;
+    color: #ffffff;
     margin-bottom: 10px;
 }
 .reflection-note {
@@ -197,4 +258,36 @@ input[type="text"], input[type="number"], textarea, select {
     font-weight: bold;
     color: #28a745;
     margin-top: 15px;
+}
+tbody  {
+color: #c3e6cb;
+}
+p {
+    color: #c3e6cb;
+
+}
+.white {
+    color: #eeeeee;
+}
+
+/* Styling the specific link class */
+.href {
+    color: #007bff; /* Matching your Islamic Green navbar */
+    text-decoration: none; /* Removes the default underline */
+    font-weight: 600; /* Makes it slightly bold */
+    transition: all 0.3s ease; /* Makes the hover effect smooth */
+    padding-bottom: 2px;
+    border-bottom: 1px solid transparent; /* Prepare for the hover underline */
+}
+
+/* Hover effect */
+.href:hover {
+    color: #0f488a; /* Darker green on hover */
+    border-bottom: 1px solid #0d2161; /* Adds a nice custom underline on hover */
+    text-decoration: none;
+}
+
+/* Active effect (when clicked) */
+.href:active {
+    transform: scale(0.98); /* Slightly shrinks when clicked for a "button" feel */
 }
