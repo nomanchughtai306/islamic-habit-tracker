@@ -48,10 +48,10 @@
             <tbody>
                 {% for log in past_logs %}
                 <tr>
-                    <td>{{ log.date.strftime('%b %d') }}</td>
-                    <td>{{ log.mood }}</td>
-                    <td>{{ log.urge_level }}</td>
-                    <td>{{ log.productivity }}</td>
+                    <td class="white">{{ log.date.strftime('%b %d') }}</td>
+                    <td class="white">{{ log.mood }} </td>
+                    <td class="white">{{ log.urge_level }}<span> %</span></td>
+                    <td class="white">{{ log.productivity }}<span> %</span></td>
                 </tr>
                 {% endfor %}
             </tbody>

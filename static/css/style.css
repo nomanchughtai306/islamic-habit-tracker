@@ -1,10 +1,10 @@
 /* General Styling */
 body {
     font-family: Arial, sans-serif;
-    background-color: #b40000;
+    background-color: #4a2b03;
     color: #333;
     margin: 0;
-    padding-top: 60px; /* Space for fixed navbar */
+    padding-top: 80px; /* Adjusted to fit the fixed navbar */
 }
 
 .container {
@@ -16,98 +16,127 @@ body {
 
 h2, h3 { color: #000000; border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
 
-
+/* --- Navbar Base Styling --- */
 .navbar {
-    display: flex;
-    justify-content: space-between; /* Pushes nav-left to one side and links to the other */
-    align-items: center;
-    padding: 15px 20px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background-color: #522f02;
-    color: white;
-    /* 1. Increased height by changing padding from 10px to 15px */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Changed red shadow to subtle black */
+    
+    /* This creates the margin from all sides */
+    width: 94%;           /* Makes it slightly narrower than the screen */
+    margin: 10px auto;    /* Centers it and gives 10px space from the top */
+    left: 3%;             /* Aligns it perfectly with the 94% width */
+    
+    padding: 10px 25px;   /* 25px on the sides gives the hamburger breathing room */
+    position: fixed;
+    top: 0;
+    margin-top: 0px;
+    
+    background-color: #011210;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-radius: 12px;  /* Optional: gives it a modern rounded look */
     z-index: 1000;
-    box-decoration-break: slice;
+    box-sizing: border-box; /* VERY IMPORTANT: prevents padding from pushing navbar off screen */
 }
 
-@media (max-width: 600px) {
-    .nav-left {
-        justify-content: center;
-        width: 100%;
-        margin-bottom: 10px;
-    }
-}
-
-/* 1. Group brand and logo together */
 .nav-left {
     display: flex;
     align-items: center;
-    gap: 15px; /* This controls the distance between text and logo */
+    gap: 15px;
 }
 
-/* 2. Style the logo size */
 .navbar-logo {
-    height: 70px; /* Adjust this to fit your navbar height */
-    width: auto;  /* Keeps the image from stretching */
-    border-radius: 5px; /* Optional: rounds the corners of your jpg */
+    height: 50px; /* Slightly adjusted for better fit */
+    width: auto;
+    border-radius: 5px;
 }
 
 .nav-brand {
-    font-size: 2.2em;
+    font-size: 1.8em;
     font-weight: bold;
-    margin-left: 20px;
     color: white;
     text-decoration: none;
 }
-.logo {
-width: 20px;
-height: 10px;
+
+/* --- Hamburger Icon (Hidden on Desktop) --- */
+#menu-toggle {
+    display: none; /* Secret checkbox */
+}
+
+.hamburger-icon {
+    display: none; 
+    font-size: 28px;
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    padding: 5px;         /* Adds a clickable area so it's not "sickly" thin */
+    margin-right: -10px;  /* Fine-tuning the position on the right */
+}
+.nav-item {
+    margin-right: 20px;
+}
+/* --- Nav Links Styling --- */
+.nav-links {
+    display: flex;
+    align-items: center;
+    align-items: stretch;
+    gap: 20px;
+    
+
+    
 }
 
 .nav-links a {
+    
     color: white;
     font-weight: bold;
     text-decoration: none;
     padding: 10px 15px;
-    margin-right: 10px; /* Increased margin for desktop */
+    margin-left: 15px;
+    margin-right: 15px;
     
-    /* 2. Added border lines to links */
     border: 1px solid rgba(255, 255, 255, 0.3); 
     border-radius: 4px;
     transition: all 0.3s ease;
 }
 
 .nav-links a:hover {
-    background-color: #720505; /* Darker green hover to match theme */
+    background-color: #4a2b03; 
     border-color: white;
 }
 
-/* 3. Mobile handling: prevent links from getting too close */
-@media (max-width: 600px) {
-    .navbar {
-        flex-direction: column; /* Stacks Brand and Links vertically */
-        padding: 20px 0;
+/* --- Responsive Mobile Logic (Collapsible Menu) --- */
+@media (max-width: 850px) {
+    .hamburger-icon {
+        display: block; 
     }
-    
+
     .nav-links {
-        margin-top: 15px;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    
-    .nav-links a {
-        margin: 5px; /* Adds space all around the link on small screens */
-        font-size: 0.9em;
+        display: none;
+        position: absolute;
+        top: 75px;        /* Distance from top of navbar */
+        left: 0;
+        width: 100%;
+        background-color: #011210;
+        flex-direction: column;
+        padding: 20px 0;
+        border-radius: 0 0 12px 12px; /* Rounds only the bottom of the dropdown */
+        border-top: 1px solid #222;
     }
 }
+
+    /* When the checkbox is checked in HTML, show the menu */
+    #menu-toggle:checked ~ .nav-links {
+        display: flex;
+    }
+
+    .nav-links a {
+        margin: 10px 0;
+        width: 80%;
+        margin-left: 14px;
+        text-align: center;
+    }
 
 
 /* Flash Messages */
@@ -140,7 +169,7 @@ input[type="text"], input[type="number"], textarea, select {
     margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    box-sizing: border-box; /* Include padding and border in element's total width and height */
+    box-sizing: border-box;
 }
 
 /* Custom Checkboxes */
@@ -220,23 +249,24 @@ input[type="text"], input[type="number"], textarea, select {
 .reflections-list {
     display: grid;
     gap: 20px;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 .reflection-card {
     background: #ffffff;
     padding: 15px;
+    margin-top: 30px;
     border-left: 5px solid #007bff;
     border-radius: 4px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 .reflection-date {
     font-size: 0.9em;
-    color: #ffffff;
+    color: #333; /* Changed to dark for readability */
     margin-bottom: 5px;
 }
 .reflection-ref {
     font-weight: bold;
-    color: #ffffff;
+    color: #333; /* Changed to dark for readability */
     margin-bottom: 10px;
 }
 .reflection-note {
@@ -259,12 +289,11 @@ input[type="text"], input[type="number"], textarea, select {
     color: #28a745;
     margin-top: 15px;
 }
-tbody  {
-color: #c3e6cb;
+tbody {
+    color: #333; /* Improved visibility */
 }
 p {
-    color: #c3e6cb;
-
+    color: #ffffff; /* Improved visibility */
 }
 .white {
     color: #eeeeee;
@@ -272,22 +301,20 @@ p {
 
 /* Styling the specific link class */
 .href {
-    color: #007bff; /* Matching your Islamic Green navbar */
-    text-decoration: none; /* Removes the default underline */
-    font-weight: 600; /* Makes it slightly bold */
-    transition: all 0.3s ease; /* Makes the hover effect smooth */
+    color: #007bff; 
+    text-decoration: none; 
+    font-weight: 600; 
+    transition: all 0.3s ease; 
     padding-bottom: 2px;
-    border-bottom: 1px solid transparent; /* Prepare for the hover underline */
+    border-bottom: 1px solid transparent; 
 }
 
-/* Hover effect */
 .href:hover {
-    color: #0f488a; /* Darker green on hover */
-    border-bottom: 1px solid #0d2161; /* Adds a nice custom underline on hover */
+    color: #0f488a; 
+    border-bottom: 1px solid #0d2161; 
     text-decoration: none;
 }
 
-/* Active effect (when clicked) */
 .href:active {
-    transform: scale(0.98); /* Slightly shrinks when clicked for a "button" feel */
+    transform: scale(0.98); 
 }
