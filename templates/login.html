@@ -1,12 +1,44 @@
 {% extends "base.html" %}
+
 {% block content %}
 <h2 class="white">Login</h2>
 <form method="POST" class="log-form">
-    <label>Username</label>
-    <input type="text" name="username" required>
-    <label>Password</label>
-    <input type="password" name="password" required>
+    <label>Username or Email</label>
+    <input type="text" name="login_identity" required placeholder="Enter username or email">
+
+    <label class="labell">Password</label>
+    <div class="password-wrapper">
+        <input type="password" name="password" id="password" required placeholder="Enter password">
+        <span class="toggle-password" onclick="togglePassword()">
+            <i class="fa-regular fa-eye" id="eyeIcon"></i>
+        </span>
+    </div>
+
+    <div class="remember-me">
+        <label>
+            <input type="checkbox" name="remember"> Keep me logged in
+        </label>
+    </div>
+
     <button type="submit" class="btn btn-primary">Login</button>
 </form>
+
 <p>Don't have an account? <a class="href" href="{{ url_for('register') }}">Sign up here</a></p>
+
+<script>
+function togglePassword() {
+    const passwordInput = document.getElementById("password");
+    const eyeIcon = document.getElementById("eyeIcon");
+    
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        eyeIcon.classList.remove("fa-regular", "fa-eye");
+        eyeIcon.classList.add("fa-solid", "fa-eye-slash");
+    } else {
+        passwordInput.type = "password";
+        eyeIcon.classList.remove("fa-solid", "fa-eye-slash");
+        eyeIcon.classList.add("fa-regular", "fa-eye");
+    }
+}
+</script>
 {% endblock %}

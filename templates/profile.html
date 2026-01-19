@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2 class="white">User Profile</h2>
+    
+    <div class="profile-card">
+        <div class="profile-header">
+            <img src="{{ url_for('static', filename='profile_pics/' + current_user.profile_pic) }}" 
+                 alt="Profile Picture" class="profile-main-img">
+            <h3 class="white">{{ current_user.username }}</h3>
+        </div>
+
+        <form method="POST" action="{{ url_for('update_profile') }}" enctype="multipart/form-data" class="log-form">
+            <label>Username</label>
+            <input type="text" value="{{ current_user.username }}" disabled>
+
+            <label>Email Address</label>
+            <input type="email" value="{{ current_user.email }}" disabled>
+
+            <<label class="custom-file-label">Update Profile Picture</label>
+<div class="file-upload-wrapper">
+    <label for="profile-upload" class="custom-file-upload">
+        <i class="fa-solid fa-cloud-arrow-up"></i> Choose Image
+    </label>
+    <input type="file" name="profile_pic" id="profile-upload" accept=".jpg, .jpeg, .png">
+    <span id="file-name" class="file-name-text">Max size: 2MB (.jpg or .png)</span>
+</div>
+
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+
+        <hr class="profile-divider">
+
+        <div class="danger-zone">
+            <h3 style="color: #ff4d4d; border-bottom: 1px solid #ff4d4d;">Delete Account</h3>
+            <p>Once you delete your account, there is no going back. Please be certain.</p>
+            <form action="{{ url_for('delete_account') }}" method="POST" onsubmit="return confirm('Are you absolutely sure? This will delete all your habits and logs.');">
+                <button type="submit" class="btn btn-danger">Delete My Account</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -5,7 +5,28 @@ from flask_migrate import Migrate
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import date, timedelta
+from datetime import datetime, timedelta
 from sqlalchemy import desc
+import secrets
+from flask import current_app
+from PIL import Image
+from functools import wraps
+from flask import abort
+
+
+from functools import wraps
+from flask import abort
+
+# The Gatekeeper Function
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # If user isn't logged in OR isn't an admin
+        if not current_user.is_authenticated or not current_user.is_admin:
+            flash("🚫 Access Denied: Admins only.", "danger")
+            return redirect(url_for('dashboard')) # Kick them out
+        return f(*args, **kwargs)
+    return decorated_function
 
 # --- 1. Configuration ---
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -14,6 +35,8 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(BASE_DIR, "tracker.db")}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'dev-secret-key-123' # Change this in production
+app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=30)
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
 
 # Initialize extensions
 db = SQLAlchemy(app)
@@ -21,23 +44,99 @@ migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login' # Where to redirect if user is not logged in
 
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or not current_user.is_admin:
+            abort(403) # "Forbidden" error
+        return f(*args, **kwargs)
+    return decorated_function
+
 # --- 2. Database Models ---
+
+
+def calculate_current_streak(habit_logs):
+    if not habit_logs:
+        return 0
+
+    today = date.today()
+    yesterday = today - timedelta(days=1)
+    
+    # Get the very latest log
+    latest_log = habit_logs[0]
+    
+    # If the user hasn't logged today or yesterday, streak is 0
+    if latest_log.date < yesterday:
+        return 0
+
+    streak = 0
+    current_date_to_check = latest_log.date
+
+    for log in habit_logs:
+        # Check if the user did at least one thing on this day
+        has_activity = any([log.fajr, log.zuhr, log.asr, log.maghrib, 
+                            log.isha, log.quran, log.nofap, log.coding_hours > 0])
+
+        if log.date == current_date_to_check and has_activity:
+            streak += 1
+            current_date_to_check -= timedelta(days=1)
+        elif log.date < current_date_to_check:
+            # We found a gap day where nothing was done
+            break
+            
+    return streak
+
+def save_picture(form_picture):
+    # 1. Create a random name to prevent name conflicts
+    random_hex = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(form_picture.filename)
+    picture_fn = random_hex + f_ext
+    picture_path = os.path.join(current_app.root_path, 'static/profile_pics', picture_fn)
+
+    # 2. PRO LOGIC: Resize the image
+    output_size = (150, 150)
+    i = Image.open(form_picture)
+    
+    # This maintains the aspect ratio and crops/resizes cleanly
+    i.thumbnail(output_size) 
+    
+    # 3. Save the compressed/resized version
+    i.save(picture_path)
+
+    return picture_fn
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
+    is_admin = db.Column(db.Boolean, default=False) 
+    email = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
+    profile_pic = db.Column(db.String(200), nullable=False, default='default.png')
     
-    # Relationships to data
-    habits = db.relationship('DailyHabit', backref='user', lazy=True)
-    logs = db.relationship('DailyLog', backref='user', lazy=True)
-    reflections = db.relationship('Reflection', backref='user', lazy=True)
+    # UPDATE THESE RELATIONSHIPS HERE:
+    habits = db.relationship('DailyHabit', backref='user', lazy=True, cascade='all, delete-orphan')
+    logs = db.relationship('DailyLog', backref='user', lazy=True, cascade='all, delete-orphan')
+    reflections = db.relationship('Reflection', backref='user', lazy=True, cascade='all, delete-orphan')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+@app.route('/admin')
+@login_required
+@admin_required
+def admin_dashboard():
+    total_users = User.query.count()
+    total_habits = DailyHabit.query.count()
+    all_users = User.query.all()
+    
+    return render_template('admin.html', 
+                           total_users=total_users, 
+                           total_habits=total_habits,
+                           users=all_users)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -77,16 +176,25 @@ class Reflection(db.Model):
 def register():
     if request.method == 'POST':
         username = request.form.get('username')
+        email = request.form.get('email') # New
         password = request.form.get('password')
         
+        # Check if Username exists
         if User.query.filter_by(username=username).first():
             flash('Username already exists.', 'danger')
             return redirect(url_for('register'))
+            
+        # Check if Email exists
+        if User.query.filter_by(email=email).first():
+            flash('Email already registered.', 'danger')
+            return redirect(url_for('register'))
         
-        new_user = User(username=username)
+        # Create new user with all 3 fields
+        new_user = User(username=username, email=email)
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()
+        
         flash('Registration successful! Please login.', 'success')
         return redirect(url_for('login'))
     return render_template('register.html')
@@ -94,12 +202,81 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        user = User.query.filter_by(username=request.form.get('username')).first()
-        if user and user.check_password(request.form.get('password')):
-            login_user(user)
+        # identity can be the username OR the email from the form
+        identity = request.form.get('login_identity')
+        password = request.form.get('password')
+        remember = True if request.form.get('remember') else False
+        
+        # Look for a user where username matches OR email matches
+        user = User.query.filter((User.username == identity) | (User.email == identity)).first()
+        
+        if user and user.check_password(password):
+            # Uses the 'remember' variable from the checkbox
+            login_user(user, remember=remember)
+            flash(f'Welcome back, {user.username}!', 'success')
             return redirect(url_for('dashboard'))
-        flash('Invalid username or password.', 'danger')
+            
+        flash('Invalid username/email or password.', 'danger')
+        
     return render_template('login.html')
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html', user=current_user)
+
+@app.route('/update_profile', methods=['POST'])
+@login_required
+def update_profile():
+    if 'profile_pic' in request.files:
+        file = request.files['profile_pic']
+        if file.filename != '':
+            old_pic = current_user.profile_pic
+            # Save new pic
+            new_pic = save_picture(file)
+            current_user.profile_pic = new_pic
+            
+            # Optional: Delete old pic from folder if it's not default.png
+            if old_pic != 'default.png':
+                try:
+                    os.remove(os.path.join(current_app.root_path, 'static/profile_pics', old_pic))
+                except:
+                    pass
+                    
+            db.session.commit()
+            flash('Profile picture updated!', 'success')
+    return redirect(url_for('profile'))
+
+@app.route('/delete_account', methods=['POST'])
+@login_required
+def delete_account():
+    user = User.query.get(current_user.id)
+    logout_user() # Log them out first
+    db.session.delete(user)
+    db.session.commit()
+    flash('Your account has been deleted.', 'info')
+    return redirect(url_for('register'))
+
+
+# The name here MUST be delete_user
+@app.route('/delete_user/<int:user_id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_user(user_id):
+    user_to_delete = User.query.get_or_404(user_id)
+    
+    if user_to_delete.id == current_user.id:
+        flash('You cannot delete yourself!', 'danger')
+        return redirect(url_for('admin_dashboard'))
+
+    # Delete their habits first (to avoid database errors)
+    DailyHabit.query.filter_by(user_id=user_to_delete.id).delete()
+    
+    db.session.delete(user_to_delete)
+    db.session.commit()
+    
+    flash(f'User {user_to_delete.email} has been deleted.', 'success')
+    return redirect(url_for('admin_dashboard'))
+
 
 @app.route('/logout')
 @login_required
@@ -109,16 +286,20 @@ def logout():
 
 # --- 4. App Routes (Now Protected) ---
 
+
+
+
 @app.route('/', methods=['GET', 'POST'])
 @login_required
 def dashboard():
     today = date.today()
-    # Find habit for current user only
+    
+    # 1. Handle Form Submission (Save Progress)
+    # Using DailyHabit as your model name based on your working code
     habit = DailyHabit.query.filter_by(date=today, user_id=current_user.id).first()
     if not habit:
         habit = DailyHabit(date=today, user_id=current_user.id)
         db.session.add(habit)
-        db.session.commit()
 
     if request.method == 'POST':
         habit.fajr = 'fajr' in request.form
@@ -128,12 +309,51 @@ def dashboard():
         habit.isha = 'isha' in request.form
         habit.quran = 'quran' in request.form
         habit.nofap = 'nofap' in request.form
-        habit.coding_hours = float(request.form.get('coding_hours', 0))
+        habit.coding_hours = float(request.form.get('coding_hours', 0) or 0)
         db.session.commit()
-        flash('Updated successfully!', 'success')
+        flash('Progress saved!', 'success')
         return redirect(url_for('dashboard'))
 
-    return render_template('dashboard.html', habit=habit, today=today)
+    # 2. Logic for the 7-Day Smart Streak Visual
+    week_data = []
+    for i in range(6, -1, -1):
+        check_date = today - timedelta(days=i)
+        log = DailyHabit.query.filter_by(user_id=current_user.id, date=check_date).first()
+        
+        status = 'none'
+        if log:
+            # Check if all 7 main religious/spiritual habits are True
+            is_full = all([log.fajr, log.zuhr, log.asr, log.maghrib, log.isha, log.quran, log.nofap])
+            status = 'success' if is_full else 'partial'
+        
+        week_data.append({
+            'day_name': check_date.strftime('%a'),
+            'status': status
+        })
+
+    # 3. Calculate Burning Streak (How many consecutive 'success' days)
+    total_streak = 0
+    curr_check = today
+    
+    while True:
+        log = DailyHabit.query.filter_by(user_id=current_user.id, date=curr_check).first()
+        is_full = log and all([log.fajr, log.zuhr, log.asr, log.maghrib, log.isha, log.quran, log.nofap])
+        
+        if is_full:
+            total_streak += 1
+            curr_check -= timedelta(days=1)
+        else:
+            # If today isn't perfect yet, don't break the streak, just check yesterday
+            if curr_check == today:
+                curr_check -= timedelta(days=1)
+                continue
+            break
+
+    return render_template('dashboard.html', 
+                           habit=habit, 
+                           week_data=week_data, 
+                           total_streak=total_streak, 
+                           today=today)
 
 @app.route('/logs', methods=['GET', 'POST'])
 @login_required

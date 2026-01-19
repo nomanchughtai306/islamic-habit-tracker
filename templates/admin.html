@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="admin-container">
+    <h2 class="white">Admin Command Center</h2>
+
+    <div class="admin-stats-grid">
+        <div class="stat-card">
+            <h3 class="white">{{ total_users }}</h3>
+            <p>Total Members</p>
+        </div>
+        <div class="stat-card">
+            <h3 class="white">{{ total_habits }}</h3>
+            <p>Habits Tracked</p>
+        </div>
+    </div>
+
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Admin?</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for user in users %}
+
+            <tr>
+
+                <td>{{ user.id }}</td>
+
+                <td>{{ user.username }}</td>
+
+                <td>{{ user.email }}</td>
+
+                <td>{{ "✅" if user.is_admin else "❌" }}</td>
+
+                <td>
+
+                    <button class="btn-sm">Reset Pass</button>
+
+                    <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST" style="display:inline;">
+    <button type="submit" class="btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user?');">
+        Delete
+    </button>
+</form>
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+{% endblock %}

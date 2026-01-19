@@ -1,29 +1,63 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <div class="stats-container">
+        <div class="streak-card">
+            <span class="streak-icon">🔥</span>
+            <div class="streak-info">
+                <h2 class="streak-number">{{ total_streak }}</h2>
+                <p class="streak-label">Day Streak</p>
+                <div class="streak-info">
+    
+    <button class="share-btn" onclick="shareStreak({{ total_streak }})">
+        <i class="fa-solid fa-share-nodes"></i> Share Progress
+    </button>
+</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="smart-stats">
+        <h3 class="white">Weekly Momentum</h3>
+        <div class="streak-bar">
+            {% for day in week_data %}
+            <div class="day-container">
+                <span class="day-label">{{ day.day_name }}</span>
+                <div class="status-circle {{ day.status }}">
+                    {% if day.status == 'success' %}
+                        <i class="fa-solid fa-check"></i>
+                    {% elif day.status == 'partial' %}
+                        <i class="fa-solid fa-minus"></i>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
     <h2 class="white">🕌 Daily Habit Tracker ({{ today.strftime('%A, %b %d, %Y') }})</h2>
     
     <form method="POST" class="habit-form">
         <div class="habit-group">
             <h3>Five Daily Prayers</h3>
             <label class="checkbox-container">Fajr
-                <input type="checkbox" name="fajr" {% if habit.fajr %}checked{% endif %}>
+                <input type="checkbox" name="fajr" {% if habit and habit.fajr %}checked{% endif %}>
                 <span class="checkmark"></span>
             </label>
             <label class="checkbox-container">Zuhr
-                <input type="checkbox" name="zuhr" {% if habit.zuhr %}checked{% endif %}>
+                <input type="checkbox" name="zuhr" {% if habit and habit.zuhr %}checked{% endif %}>
                 <span class="checkmark"></span>
             </label>
             <label class="checkbox-container">Asr
-                <input type="checkbox" name="asr" {% if habit.asr %}checked{% endif %}>
+                <input type="checkbox" name="asr" {% if habit and habit.asr %}checked{% endif %}>
                 <span class="checkmark"></span>
             </label>
             <label class="checkbox-container">Maghrib
-                <input type="checkbox" name="maghrib" {% if habit.maghrib %}checked{% endif %}>
+                <input type="checkbox" name="maghrib" {% if habit and habit.maghrib %}checked{% endif %}>
                 <span class="checkmark"></span>
             </label>
             <label class="checkbox-container">Isha
-                <input type="checkbox" name="isha" {% if habit.isha %}checked{% endif %}>
+                <input type="checkbox" name="isha" {% if habit and habit.isha %}checked{% endif %}>
                 <span class="checkmark"></span>
             </label>
         </div>
@@ -31,11 +65,11 @@
         <div class="habit-group">
             <h3>Spiritual & Self-Control</h3>
             <label class="checkbox-container">Quran Reading
-                <input type="checkbox" name="quran" {% if habit.quran %}checked{% endif %}>
+                <input type="checkbox" name="quran" {% if habit and habit.quran %}checked{% endif %}>
                 <span class="checkmark"></span>
             </label>
             <label class="checkbox-container success">NoFap (Clean Day)
-                <input type="checkbox" name="nofap" {% if habit.nofap %}checked{% endif %}>
+                <input type="checkbox" name="nofap" {% if habit and habit.nofap %}checked{% endif %}>
                 <span class="checkmark"></span>
             </label>
         </div>
@@ -43,9 +77,29 @@
         <div class="habit-group">
             <h3>Productivity</h3>
             <label for="coding_hours">Coding Hours Logged:</label>
-            <input type="number" step="0.5" min="0" id="coding_hours" name="coding_hours" value="{{ '%.1f' % habit.coding_hours }}" placeholder="0.0">
+            <input type="number" step="0.5" min="0" id="coding_hours" name="coding_hours" 
+                   value="{{ '%.1f' % (habit.coding_hours if habit else 0.0) }}" placeholder="0.0">
         </div>
 
         <button type="submit" class="btn btn-primary">Save Today's Progress</button>
     </form>
+    <script>
+function shareStreak(count) {
+    const shareText = `🔥 I'm on a ${count}-day streak on my Habit Tracker! 🕌\n\nConsistency is key. Join me in staying productive!`;
+    
+    // Check if the browser supports the native share menu (Mobile)
+    if (navigator.share) {
+        navigator.share({
+            title: 'My Habit Streak',
+            text: shareText,
+            url: window.location.origin
+        }).catch(console.error);
+    } else {
+        // Fallback: Copy to clipboard for Desktop users
+        navigator.clipboard.writeText(shareText).then(() => {
+            alert("Streak info copied to clipboard! Share it with your friends.");
+        });
+    }
+}
+</script>
 {% endblock %}
