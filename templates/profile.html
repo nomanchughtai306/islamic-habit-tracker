@@ -1,43 +1,172 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container">
-    <h2 class="white">User Profile</h2>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<div class="profile-wrapper">
     
-    <div class="profile-card">
-        <div class="profile-header">
-            <img src="{{ url_for('static', filename='profile_pics/' + current_user.profile_pic) }}" 
-                 alt="Profile Picture" class="profile-main-img">
-            <h3 class="white">{{ current_user.username }}</h3>
+    <div class="dashboard-header fade-in">
+        <div class="header-content">
+            <h6 class="overline">Identity Management</h6>
+            <h1 class="glow-text">User Profile</h1>
+            <p>Customize your presence and security settings.</p>
+        </div>
+        <div class="live-indicator">
+            <span class="dot"></span> Account Secure
+        </div>
+    </div>
+
+    <div class="profile-container glass fade-in-delay-1">
+        
+        <div class="profile-hero">
+            <div class="avatar-wrapper">
+                <img src="{{ url_for('static', filename='profile_pics/' + current_user.profile_pic) }}" 
+                     alt="Profile Picture" class="profile-main-img">
+                <div class="avatar-glow"></div>
+            </div>
+            <div class="hero-info">
+                <h2 class="username-display">{{ current_user.username }}</h2>
+                <span class="role-badge"><i class="fa-solid fa-shield-halved"></i> Verified Practitioner</span>
+            </div>
         </div>
 
-        <form method="POST" action="{{ url_for('update_profile') }}" enctype="multipart/form-data" class="log-form">
-            <label>Username</label>
-            <input type="text" value="{{ current_user.username }}" disabled>
+        <form method="POST" action="{{ url_for('update_profile') }}" enctype="multipart/form-data" class="profile-form">
+            <div class="form-grid">
+                <div class="input-group">
+                    <label class="overline-label">Username</label>
+                    <div class="readonly-box">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" value="{{ current_user.username }}" disabled>
+                    </div>
+                </div>
 
-            <label>Email Address</label>
-            <input type="email" value="{{ current_user.email }}" disabled>
+                <div class="input-group">
+                    <label class="overline-label">Email Address</label>
+                    <div class="readonly-box">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" value="{{ current_user.email }}" disabled>
+                    </div>
+                </div>
 
-            <<label class="custom-file-label">Update Profile Picture</label>
-<div class="file-upload-wrapper">
-    <label for="profile-upload" class="custom-file-upload">
-        <i class="fa-solid fa-cloud-arrow-up"></i> Choose Image
-    </label>
-    <input type="file" name="profile_pic" id="profile-upload" accept=".jpg, .jpeg, .png">
-    <span id="file-name" class="file-name-text">Max size: 2MB (.jpg or .png)</span>
-</div>
+                <div class="input-group span-2">
+                    <label class="overline-label">Update Profile Picture</label>
+                    <div class="file-upload-wrapper">
+                        <label for="profile-upload" class="custom-file-upload">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Upload New Image
+                        </label>
+                        <input type="file" name="profile_pic" id="profile-upload" accept=".jpg, .jpeg, .png">
+                        <span id="file-name" class="file-name-text">Max size: 2MB (.jpg or .png)</span>
+                    </div>
+                </div>
+            </div>
 
-            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="submit" class="save-btn-premium">
+                <i class="fa-solid fa-user-check"></i> Sync Profile Changes
+            </button>
         </form>
 
-        <hr class="profile-divider">
+        <div class="divider-line"></div>
 
-        <div class="danger-zone">
-            <h3 style="color: #ff4d4d; border-bottom: 1px solid #ff4d4d;">Delete Account</h3>
-            <p>Once you delete your account, there is no going back. Please be certain.</p>
-            <form action="{{ url_for('delete_account') }}" method="POST" onsubmit="return confirm('Are you absolutely sure? This will delete all your habits and logs.');">
-                <button type="submit" class="btn btn-danger">Delete My Account</button>
-            </form>
+        <div class="danger-zone-wrapper">
+            <h3 class="danger-title"><i class="fa-solid fa-triangle-exclamation"></i> Danger Zone</h3>
+            <div class="danger-content">
+                <p>Deleting your account will permanently erase your 21-day progress, logs, and reflections. This action is irreversible.</p>
+                <form action="{{ url_for('delete_account') }}" method="POST" onsubmit="return confirm('Are you absolutely sure? This will delete all your habits and logs.');">
+                    <button type="submit" class="btn-delete-account">
+                        <i class="fa-solid fa-trash-can"></i> Terminate Account
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* UI CORE & THEME */
+    :root {
+        --void: #011210;
+        --earth: #4a2b03;
+        --gold: #c3c908;
+        --danger: #ff4d4d;
+        --glass: rgba(10, 25, 23, 0.85);
+        --border: rgba(195, 201, 8, 0.15);
+    }
+
+    body { background-color: var(--void); color: #e0e0e0; font-family: 'Outfit', sans-serif; }
+    .profile-wrapper { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+    .glass { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid var(--border); border-radius: 24px; }
+    .glow-text { text-shadow: 0 0 15px rgba(195, 201, 8, 0.4); color: #fff; }
+
+    /* HEADER */
+    .dashboard-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+    .overline { color: var(--gold); text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; font-family: 'Rajdhani'; margin: 0; }
+    h1 { font-size: 2.2rem; font-weight: 300; margin: 5px 0; }
+
+    /* PROFILE HERO */
+    .profile-container { padding: 40px; }
+    .profile-hero { display: flex; align-items: center; gap: 30px; margin-bottom: 40px; padding-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    
+    .avatar-wrapper { position: relative; width: 120px; height: 120px; }
+    .profile-main-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--gold); position: relative; z-index: 2; }
+    .avatar-glow { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; background: var(--gold); filter: blur(20px); opacity: 0.3; z-index: 1; }
+    
+    .username-display { font-size: 2rem; margin: 0; font-family: 'Rajdhani'; color: white; }
+    .role-badge { font-size: 0.8rem; color: var(--gold); background: rgba(195, 201, 8, 0.1); padding: 4px 12px; border-radius: 50px; border: 1px solid var(--border); }
+
+    /* FORM STYLING */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 30px; }
+    .span-2 { grid-column: span 2; }
+    .overline-label { display: block; font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; font-family: 'Rajdhani'; }
+
+    .readonly-box { display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.3); border: 1px solid var(--earth); padding: 12px 15px; border-radius: 12px; opacity: 0.8; }
+    .readonly-box i { color: var(--earth); }
+    .readonly-box input { background: transparent; border: none; color: #aaa; width: 100%; outline: none; }
+
+    /* FILE UPLOAD */
+    .file-upload-wrapper { background: rgba(255,255,255,0.02); border: 2px dashed var(--earth); border-radius: 15px; padding: 25px; text-align: center; transition: 0.3s; }
+    .file-upload-wrapper:hover { border-color: var(--gold); background: rgba(195, 201, 8, 0.05); }
+    .custom-file-upload { background: var(--earth); color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; display: inline-block; margin-bottom: 10px; font-weight: bold; transition: 0.3s; }
+    .custom-file-upload:hover { transform: scale(1.05); background: #5a3504; }
+    #profile-upload { display: none; }
+    .file-name-text { display: block; font-size: 0.8rem; color: #666; }
+
+    /* BUTTONS */
+    .save-btn-premium { width: 100%; padding: 18px; border-radius: 15px; border: none; background: linear-gradient(90deg, var(--earth), #7a4a06); color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
+    .save-btn-premium:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); filter: brightness(1.2); }
+
+    .divider-line { height: 1px; background: rgba(255,255,255,0.05); margin: 50px 0; }
+
+    /* DANGER ZONE */
+    .danger-zone-wrapper { background: rgba(255, 77, 77, 0.03); border: 1px solid rgba(255, 77, 77, 0.2); border-radius: 15px; padding: 30px; }
+    .danger-title { color: var(--danger); font-family: 'Rajdhani'; margin-top: 0; border-bottom: 1px solid rgba(255, 77, 77, 0.2); padding-bottom: 10px; }
+    .danger-content p { font-size: 0.9rem; color: #888; margin-bottom: 20px; }
+    .btn-delete-account { background: transparent; border: 1px solid var(--danger); color: var(--danger); padding: 12px 25px; border-radius: 10px; cursor: pointer; transition: 0.3s; font-weight: bold; }
+    .btn-delete-account:hover { background: var(--danger); color: white; box-shadow: 0 0 20px rgba(255, 77, 77, 0.3); }
+
+    /* ANIMATIONS */
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeInUp 0.6s ease-out forwards; }
+    .fade-in-delay-1 { animation: fadeInUp 0.6s ease-out 0.2s forwards; opacity: 0; }
+
+    @media (max-width: 600px) {
+        .form-grid { grid-template-columns: 1fr; }
+        .span-2 { grid-column: span 1; }
+        .profile-hero { flex-direction: column; text-align: center; }
+        .dashboard-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+    }
+</style>
+
+<script>
+    // Show filename after selection
+    const fileInput = document.getElementById('profile-upload');
+    const fileNameDisplay = document.getElementById('file-name');
+
+    fileInput.addEventListener('change', function() {
+        if (this.files && this.files.length > 0) {
+            fileNameDisplay.innerText = "Selected: " + this.files[0].name;
+            fileNameDisplay.style.color = "#c3c908";
+        }
+    });
+</script>
 {% endblock %}

@@ -1,15 +1,121 @@
 {% extends "base.html" %}
-{% block content %}
-    <h2 class="white">✏️ Edit Reflection</h2>
-    <form method="POST" class="log-form">
-        <label>Reference (Surah/Hadith/Book)</label>
-        <input type="text" name="reference" value="{{ reflection.reference }}">
-        
-        <label>Your Note</label>
-        <textarea name="note" rows="5" required>{{ reflection.note }}</textarea>
-        
-        <button type="submit" class="btn btn-primary">Update Reflection</button>
-        <a href="{{ url_for('reflections') }}" class="btn-cancel href">Cancel</a>
-    </form>
-{% endblock %}
 
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<div class="edit-page-wrapper">
+    
+    <div class="dashboard-header fade-in">
+        <div class="header-content">
+            <h6 class="overline">Modify Entry</h6>
+            <h1 class="glow-text">✏️ Edit Reflection</h1>
+            <p>Refine your thoughts and update your spiritual archive.</p>
+        </div>
+        <div class="back-link">
+            <a href="{{ url_for('reflections') }}" class="glass-btn small">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <div class="form-section glass fade-in-delay-1">
+        <form method="POST" class="edit-form-premium">
+            
+            <div class="input-group">
+                <label for="reference"><i class="fa-solid fa-bookmark gold-icon"></i> Reference (Surah/Hadith/Book)</label>
+                <div class="input-wrapper">
+                    <input type="text" id="reference" name="reference" value="{{ reflection.reference }}" placeholder="e.g. Quran 3:191">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="note"><i class="fa-solid fa-pen-fancy gold-icon"></i> Your Note</label>
+                <textarea id="note" name="note" rows="8" required placeholder="Rewrite your reflection here...">{{ reflection.note }}</textarea>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="save-btn-premium">
+                    <i class="fa-solid fa-arrows-rotate"></i> Update Reflection
+                </button>
+                <a href="{{ url_for('reflections') }}" class="cancel-btn">
+                    Cancel Changes
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* UI CORE & THEME */
+    :root {
+        --void: #011210;
+        --earth: #4a2b03;
+        --gold: #c3c908;
+        --glass: rgba(10, 25, 23, 0.85);
+        --border: rgba(195, 201, 8, 0.15);
+        --text-dim: #8fa3a0;
+    }
+
+    body { background-color: var(--void); color: #e0e0e0; font-family: 'Outfit', sans-serif; }
+    .edit-page-wrapper { max-width: 700px; margin: 0 auto; padding: 40px 20px; }
+    .glass { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid var(--border); border-radius: 24px; }
+    .glow-text { text-shadow: 0 0 15px rgba(195, 201, 8, 0.4); color: #fff; }
+
+    /* HEADER */
+    .dashboard-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+    .overline { color: var(--gold); text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; font-family: 'Rajdhani'; margin: 0; }
+    h1 { font-size: 2.2rem; font-weight: 300; margin: 5px 0; }
+    
+    .glass-btn.small { 
+        font-size: 0.8rem; color: var(--gold); background: rgba(195, 201, 8, 0.05); 
+        padding: 8px 15px; border-radius: 12px; border: 1px solid var(--border); 
+        text-decoration: none; transition: 0.3s; 
+    }
+    .glass-btn.small:hover { background: var(--gold); color: var(--void); }
+
+    /* FORM STYLING */
+    .form-section { padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+    .input-group { margin-bottom: 25px; }
+    .input-group label { display: block; margin-bottom: 12px; font-size: 0.9rem; color: #aaa; font-family: 'Rajdhani'; text-transform: uppercase; letter-spacing: 1px; }
+    .gold-icon { color: var(--gold); margin-right: 8px; font-size: 0.8rem; }
+
+    input[type="text"] {
+        width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--earth); border-radius: 12px;
+        padding: 14px; color: white; font-family: 'Outfit'; outline: none; transition: 0.3s;
+    }
+    textarea {
+        width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--earth); border-radius: 12px;
+        padding: 16px; color: white; font-family: 'Outfit'; outline: none; resize: vertical; transition: 0.3s;
+        line-height: 1.6;
+    }
+    input:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 15px rgba(195, 201, 8, 0.1); }
+
+    /* BUTTONS */
+    .button-group { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+    
+    .save-btn-premium {
+        width: 100%; padding: 18px; border-radius: 15px; border: none;
+        background: linear-gradient(90deg, var(--earth), #7a4a06); color: white;
+        font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+    .save-btn-premium:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(0,0,0,0.5); filter: brightness(1.2); }
+
+    .cancel-btn {
+        text-align: center; color: var(--text-dim); text-decoration: none; font-size: 0.9rem;
+        transition: 0.3s; padding: 10px;
+    }
+    .cancel-btn:hover { color: #ff4d4d; }
+
+    /* ANIMATIONS */
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeInUp 0.6s ease-out forwards; }
+    .fade-in-delay-1 { animation: fadeInUp 0.6s ease-out 0.2s forwards; opacity: 0; }
+
+    @media (max-width: 600px) {
+        .dashboard-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+        .form-section { padding: 25px; }
+    }
+</style>
+{% endblock %}

@@ -1,36 +1,90 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="progress-header">
-    <h2 class="white">📈 Your Spiritual & Productivity Growth</h2>
-    <p>Visualizing the last 21 days for <strong>{{ current_user.username }}</strong></p>
-</div>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
 
-<div class="chart-container">
-    <h3>🕌 Prayer Completion & Quran Consistency</h3>
-    <canvas id="spiritualChart"></canvas>
-</div>
+<div class="dashboard-wrapper">
+    
+    <div class="dashboard-header fade-in">
+        <div class="header-content">
+            <h6 class="overline">Analytics Dashboard</h6>
+            <h1 class="glow-text">{{ current_user.username }}'s Journey</h1>
+            <p>21-Day Performance & Spiritual Metrics</p>
+        </div>
+        <div class="live-indicator">
+            <span class="dot"></span> Live Data
+        </div>
+    </div>
 
-<div class="chart-container">
-    <h3>🧠 Urge Control (Lower is Better)</h3>
-    <canvas id="urgeChart"></canvas>
-</div>
+    <div class="stats-grid fade-in-delay-1">
+        <div class="stat-card glass">
+            <div class="icon">🔥</div>
+            <div class="stat-info">
+                <span class="label">Current Streak</span>
+                <h3 id="stat-streak">--</h3>
+            </div>
+        </div>
+        <div class="stat-card glass">
+            <div class="icon">💻</div>
+            <div class="stat-info">
+                <span class="label">Total Coding</span>
+                <h3 id="stat-coding">-- hrs</h3>
+            </div>
+        </div>
+        <div class="stat-card glass">
+            <div class="icon">🛡️</div>
+            <div class="stat-info">
+                <span class="label">Avg Urge Level</span>
+                <h3 id="stat-urge">--/10</h3>
+            </div>
+        </div>
+    </div>
 
-<div class="chart-container">
-    <h3>💻 Coding Hours</h3>
-    <canvas id="codingChart"></canvas>
-</div>
+    <div class="charts-grid">
+        <div class="chart-container update fade-in-delay-2">
+            <h3>🕌 Prayer & Quran Consistency</h3>
+            <canvas id="spiritualChart"></canvas>
+        </div>
 
-<div class="chart-container">
-    <h3>🔥 NoFap Clean Streak</h3>
-    <canvas id="nofapChart"></canvas>
-    <div class="streak-badge" id="streakDisplay">Calculating...</div>
+        <div class="chart-container update fade-in-delay-2">
+            <h3>🧠 Urge Control (Lower is Better)</h3>
+            <canvas id="urgeChart"></canvas>
+        </div>
+
+        <div class="chart-container update fade-in-delay-3">
+            <h3>💻 Coding Hours</h3>
+            <canvas id="codingChart"></canvas>
+        </div>
+
+        <div class="chart-container fade-in-delay-3">
+            <h3>🔥 NoFap Clean Streak</h3>
+            <canvas id="nofapChart"></canvas>
+            <div class="streak-badge-container">
+                <div class="streak-badge" id="streakDisplay">Calculating...</div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
     const data = {{ chart_data | tojson | safe }};
 
-    // --- 1. Spiritual Chart (Combined Prayers & Quran) ---
+    // --- Dynamic Header Logic ---
+    const totalCoding = data.coding_hours.reduce((a, b) => a + b, 0).toFixed(1);
+    const avgUrge = (data.urge_levels.reduce((a, b) => a + b, 0) / data.urge_levels.length || 0).toFixed(1);
+    const streakIndex = data.nofap_days.slice().reverse().indexOf(0);
+    const finalStreak = streakIndex === -1 ? data.nofap_days.length : streakIndex;
+
+    document.getElementById('stat-coding').innerText = totalCoding + 'h';
+    document.getElementById('stat-urge').innerText = avgUrge;
+    document.getElementById('stat-streak').innerText = finalStreak + ' Days';
+    document.getElementById('streakDisplay').innerText = `Current Streak: ${finalStreak} Days`;
+
+    // --- Chart Global Config ---
+    Chart.defaults.color = '#8fa3a0';
+    Chart.defaults.borderColor = 'rgba(195, 201, 8, 0.1)';
+
+    // 1. Spiritual Chart
     new Chart(document.getElementById('spiritualChart'), {
         type: 'line',
         data: {
@@ -39,15 +93,15 @@
                 {
                     label: 'Prayers %',
                     data: data.prayer_percents,
-                    borderColor: '#28a745',
-                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    borderColor: '#c3c908',
+                    backgroundColor: 'rgba(195, 201, 8, 0.1)',
                     fill: true,
-                    tension: 0.4 // Restores the smooth curves
+                    tension: 0.4
                 },
                 {
-                    label: 'Quran Read (1=Yes)',
+                    label: 'Quran Read',
                     data: data.quran_status,
-                    borderColor: '#007bff',
+                    borderColor: '#4a2b03',
                     borderDash: [5, 5],
                     fill: false,
                     tension: 0
@@ -57,7 +111,7 @@
         options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
     });
 
-    // --- 2. Urge Chart (The "Better" Red Line) ---
+    // 2. Urge Chart
     new Chart(document.getElementById('urgeChart'), {
         type: 'line',
         data: {
@@ -65,8 +119,8 @@
             datasets: [{
                 label: 'Urge Level',
                 data: data.urge_levels,
-                borderColor: '#dc3545',
-                backgroundColor: 'rgba(220, 53, 69, 0.2)',
+                borderColor: '#e74c3c',
+                backgroundColor: 'rgba(231, 76, 60, 0.2)',
                 fill: true,
                 tension: 0.4
             }]
@@ -74,7 +128,7 @@
         options: { responsive: true, scales: { y: { beginAtZero: true, max: 10 } } }
     });
 
-    // --- 3. Coding Chart ---
+    // 3. Coding Chart
     new Chart(document.getElementById('codingChart'), {
         type: 'bar',
         data: {
@@ -82,12 +136,13 @@
             datasets: [{
                 label: 'Hours',
                 data: data.coding_hours,
-                backgroundColor: '#17a2b8'
+                backgroundColor: '#c3c908',
+                borderRadius: 5
             }]
         }
     });
 
-    // --- 4. NoFap Streak ---
+    // 4. NoFap Chart
     new Chart(document.getElementById('nofapChart'), {
         type: 'bar',
         data: {
@@ -95,21 +150,90 @@
             datasets: [{
                 label: 'Clean Day',
                 data: data.nofap_days,
-                backgroundColor: (ctx) => ctx.raw === 1 ? '#28a745' : '#e9ecef'
+                backgroundColor: (ctx) => ctx.raw === 1 ? '#c3c908' : '#2a1802',
+                borderRadius: 5
             }]
         },
         options: { scales: { y: { display: false } } }
     });
-
-    // Streak Logic
-    const streak = data.nofap_days.reverse().indexOf(0);
-    const finalStreak = streak === -1 ? data.nofap_days.length : streak;
-    document.getElementById('streakDisplay').innerText = `Current Streak: ${finalStreak} Days`;
 </script>
 
 <style>
-    .chart-container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 30px; }
-    .streak-badge { text-align: center; font-size: 1.5rem; font-weight: bold; color: #28a745; margin-top: 10px; }
-    .progress-header { text-align: center; margin-bottom: 30px; }
+    /* UI CORE */
+    :root {
+        --void: #011210;
+        --earth: #4a2b03;
+        --gold: #c3c908;
+        --glass: rgba(10, 25, 23, 0.7);
+    }
+
+    body {
+        background-color: var(--void);
+        color: #e0e0e0;
+        font-family: 'Outfit', sans-serif;
+        margin: 0;
+    }
+
+    .dashboard-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    /* HEADER STYLE (Premium V2) */
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 40px;
+        border-bottom: 1px solid rgba(195, 201, 8, 0.2);
+        padding-bottom: 20px;
+    }
+
+    .overline { color: var(--gold); text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; margin: 0; font-family: 'Rajdhani', sans-serif;}
+    .glow-text { margin: 5px 0; font-size: 2.5rem; font-weight: 300; text-shadow: 0 0 15px rgba(195, 201, 8, 0.3); }
+    
+    .live-indicator {
+        display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--gold);
+        background: rgba(195, 201, 8, 0.1); padding: 5px 15px; border-radius: 20px; border: 1px solid rgba(195, 201, 8, 0.2);
+    }
+    .dot { width: 8px; height: 8px; background: var(--gold); border-radius: 50%; animation: pulse 2s infinite; }
+
+    /* STATS CARDS (Premium V2) */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
+    .stat-card { padding: 20px; display: flex; align-items: center; gap: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
+    .glass { background: var(--glass); backdrop-filter: blur(10px); }
+    .stat-card .icon { font-size: 1.8rem; background: rgba(255,255,255,0.03); width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 12px; }
+    .stat-info .label { font-size: 0.75rem; color: #888; text-transform: uppercase; }
+    .stat-info h3 { margin: 0; font-family: 'Rajdhani', sans-serif; font-size: 1.5rem; color: var(--gold); }
+
+    /* CHARTS LAYOUT (Fusion) */
+    .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 25px; }
+    .chart-container { 
+        background: var(--glass); padding: 25px; border-radius: 16px; 
+        border: 1px solid rgba(195, 201, 8, 0.1); transition: 0.3s;
+    }
+    .chart-container:hover { border-color: var(--gold); transform: translateY(-5px); }
+    
+    h3 { font-size: 1.1rem; color: var(--gold); margin-top: 0; margin-bottom: 20px; font-weight: 400; border-left: 3px solid var(--earth); padding-left: 10px; }
+
+    .streak-badge-container { display: flex; justify-content: center; margin-top: 15px; }
+    .streak-badge { 
+        background: rgba(195, 201, 8, 0.1); color: var(--gold); padding: 8px 20px; 
+        border-radius: 50px; font-weight: bold; border: 1px solid var(--gold);
+    }
+
+    /* ANIMATIONS */
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeInUp 0.6s ease-out forwards; }
+    .fade-in-delay-1 { animation: fadeInUp 0.6s ease-out 0.2s forwards; opacity: 0; }
+    .fade-in-delay-2 { animation: fadeInUp 0.6s ease-out 0.4s forwards; opacity: 0; }
+    .fade-in-delay-3 { animation: fadeInUp 0.6s ease-out 0.6s forwards; opacity: 0; }
+
+    @media (max-width: 768px) {
+        .charts-grid { grid-template-columns: 1fr; }
+        .dashboard-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+    }
 </style>
 {% endblock %}

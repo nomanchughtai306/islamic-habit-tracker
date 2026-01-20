@@ -12,7 +12,7 @@ from flask import current_app
 from PIL import Image
 from functools import wraps
 from flask import abort
-
+import requests
 
 from functools import wraps
 from flask import abort
@@ -45,15 +45,6 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login' # Where to redirect if user is not logged in
 
 
-def admin_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated or not current_user.is_admin:
-            abort(403) # "Forbidden" error
-        return f(*args, **kwargs)
-    return decorated_function
-
-# --- 2. Database Models ---
 
 
 def calculate_current_streak(habit_logs):
@@ -86,6 +77,18 @@ def calculate_current_streak(habit_logs):
             break
             
     return streak
+
+
+def get_prayer_times(city="Mirpur", country="Pakistan"):
+    try:
+        # Method 1 is University of Islamic Sciences, Karachi
+        url = f"http://api.aladhan.com/v1/timingsByCity?city={city}&country={country}&method=1"
+        response = requests.get(url, timeout=5)
+        data = response.json()
+        return data['data']['timings']
+    except Exception as e:
+        print(f"Error fetching prayer times: {e}")
+        return None
 
 def save_picture(form_picture):
     # 1. Create a random name to prevent name conflicts
@@ -300,6 +303,7 @@ def dashboard():
     if not habit:
         habit = DailyHabit(date=today, user_id=current_user.id)
         db.session.add(habit)
+     
 
     if request.method == 'POST':
         habit.fajr = 'fajr' in request.form
@@ -349,11 +353,14 @@ def dashboard():
                 continue
             break
 
+    prayer_times = get_prayer_times() # Fetch the times
+    
     return render_template('dashboard.html', 
                            habit=habit, 
                            week_data=week_data, 
                            total_streak=total_streak, 
-                           today=today)
+                           today=today,
+                           prayer_times=prayer_times)
 
 @app.route('/logs', methods=['GET', 'POST'])
 @login_required
