@@ -581,20 +581,20 @@ input[type="range"].premium-slider::-webkit-slider-thumb {
     .custom-checkbox {
         display: flex; align-items: center; justify-content: space-between;
         padding: 12px 15px; background: rgba(255,255,255,0.03); border-radius: 10px;
-        cursor: pointer; transition: 0.2s; border: 1px solid transparent;
+        cursor: pointer; transition: 0.2s; border: 1px solid transparent; font-size: 1.1rem; color: #fff7f7;
     }
     .custom-checkbox:hover { background: rgba(255,255,255,0.08); }
     .custom-checkbox input { display: none; }
-    .check-mark-v2 { width: 18px; height: 18px; border: 2px solid #555; border-radius: 4px; position: relative; }
+    .check-mark-v2 { width: 18px; height: 18px; border: 2px solid #ee8701; border-radius: 4px; position: relative; }
     .custom-checkbox input:checked ~ .check-mark-v2 { background: var(--gold); border-color: var(--gold); }
     .custom-checkbox input:checked ~ .check-mark-v2::after {
         content: '✔'; position: absolute; font-size: 12px; color: var(--void); left: 2px; top: -1px;
     }
-    .custom-checkbox input:checked ~ .box-text { color: var(--gold); font-weight: bold; }
+    .custom-checkbox input:checked ~ .box-text { color: var(--gold); font-weight: bold;  }
 
     /* PRODUCTIVITY INPUT */
     .input-wrapper { display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; border: 1px solid var(--earth); }
-    .input-wrapper input { background: transparent; border: none; color: var(--gold); font-size: 1.5rem; width: 80px; font-family: 'Rajdhani'; font-weight: bold; outline: none;}
+    .input-wrapper input { background: transparent; border: none; color: var(--gold); font-size: 1.1rem; padding-left: 10px; width: 80px; font-family: 'Rajdhani'; font-weight: bold; outline: none;}
     .unit { font-size: 0.8rem; color: #888; }
 
     /* BUTTONS */
@@ -750,7 +750,7 @@ input[type="range"].premium-slider::-webkit-slider-thumb {
     .input-wrapper i { position: absolute; left: 15px; color: var(--earth); }
     .input-wrapper input { 
         width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--earth); border-radius: 12px;
-        padding: 12px 12px 12px 45px; color: white; font-family: 'Outfit'; outline: none; transition: 0.3s;
+        padding: 12px 12px 12px 10px; color: white; font-family: 'Outfit'; outline: none; transition: 0.3s;
     }
     .input-wrapper input:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(195, 201, 8, 0.1); }
 
@@ -930,19 +930,19 @@ input[type="range"].premium-slider::-webkit-slider-thumb {
     
     .input-wrapper input {
         width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--earth); border-radius: 12px;
-        padding: 14px 14px 14px 45px; color: white; font-family: 'Outfit'; outline: none; transition: 0.3s;
+        padding: 14px 14px 14px 10px; color:  white; font-family: 'Outfit'; font-size: medium; outline: none; transition: 0.3s;
     }
     .input-wrapper input:focus { border-color: var(--gold); box-shadow: 0 0 15px rgba(195, 201, 8, 0.1); }
 
     /* PASSWORD TOGGLE */
-    .toggle-password { position: absolute; right: 15px; color: var(--gold); cursor: pointer; opacity: 0.7; transition: 0.3s; }
+    .toggle-password { position: absolute; margin-top: 10px; margin-right: 50px; color: var(--gold); cursor: pointer; opacity: 0.7; transition: 0.3s; }
     .toggle-password:hover { opacity: 1; }
 
     /* CHECKBOX */
     .form-options { margin-bottom: 30px; display: flex; justify-content: flex-start; }
-    .custom-checkbox { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.85rem; color: #aaa; }
+    .custom-checkbox { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1.1rem; color: #ffffff; }
     .custom-checkbox input { display: none; }
-    .check-mark-v2 { width: 16px; height: 16px; border: 1px solid var(--earth); border-radius: 4px; position: relative; }
+    .check-mark-v2 { width: 16px; height: 16px; border: 1px solid #ee8701; border-radius: 4px; position: relative; color: #ee8701; }
     .custom-checkbox input:checked ~ .check-mark-v2 { background: var(--gold); border-color: var(--gold); }
     .custom-checkbox input:checked ~ .check-mark-v2::after { content: '✔'; position: absolute; font-size: 10px; color: var(--void); left: 3px; top: 0px; }
 
@@ -1018,7 +1018,7 @@ input[type="range"].premium-slider::-webkit-slider-thumb {
     
     .input-wrapper input {
         width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--earth); border-radius: 12px;
-        padding: 14px 14px 14px 45px; color: white; font-family: 'Outfit'; outline: none; transition: 0.3s;
+        padding: 14px 14px 14px 10px; color: white; font-family: 'Outfit'; outline: none; transition: 0.3s;
     }
     .input-wrapper input:focus { border-color: var(--gold); box-shadow: 0 0 15px rgba(195, 201, 8, 0.1); }
 
@@ -1050,3 +1050,60 @@ input[type="range"].premium-slider::-webkit-slider-thumb {
         .auth-card { padding: 40px 20px; }
         .glow-text { font-size: 1.8rem; }
     }
+
+
+
+    /* --- MOBILE-SPECIFIC FIXES (Add to the bottom of style.css) --- */
+
+@media (max-width: 600px) {
+    /* 1. Force Stat Cards to stay horizontal (side-by-side) */
+    .admin-stats-grid, 
+    .dashboard-stats-grid { 
+        display: flex !important; /* Overrides the grid */
+        flex-direction: row !important; /* Keeps them horizontal */
+        justify-content: space-between;
+        gap: 8px; /* Reduced gap for small screens */
+        padding: 0;
+    }
+
+    .stat-card {
+        flex: 1; /* Makes all cards take equal space */
+        padding: 10px 5px !important; /* Shrinks the internal padding */
+        min-width: 0; /* Prevents cards from overflowing */
+    }
+
+    .stat-card h3 {
+        font-size: 1.1rem !important; /* Smaller text to fit horizontal */
+        margin-bottom: 2px;
+    }
+
+    .stat-card p {
+        font-size: 0.6rem !important; /* Smaller label */
+        white-space: nowrap; /* Prevents text from breaking into two lines */
+    }
+
+    /* 2. Center the Chart Containers */
+    .chart-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        display: block !important;
+        right: 0 !important; /* Removes any right-side stickiness */
+        padding: 10px !important;
+    }
+
+    /* Fix for Chart.js canvas centering */
+    canvas {
+        margin: 0 auto !important;
+        max-width: 100% !important;
+    }
+}
+
+.use{
+    text-transform: capitalize;
+    font-family: 'Outfit';
+    font-size: 1.9rem;
+    transition: 0.3s;
+    text-decoration: underline;
+}
