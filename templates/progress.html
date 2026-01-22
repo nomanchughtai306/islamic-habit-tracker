@@ -8,7 +8,7 @@
     <div class="dashboard-header fade-in">
         <div class="header-content">
             <h6 class="overline">Analytics Dashboard</h6>
-            <h1 class="glow-text"> <span class="use glow-text overline"> {{ current_user.username }} </span> Journey</h1>
+            <h1 class="glow-text"> <span class="use glow-text overline"> {{ current_user.username }}  </span>'s Journey </h1>
             <p>21-Day Performance & Spiritual Metrics</p>
         </div>
         <div class="live-indicator">
@@ -47,7 +47,7 @@
         </div>
 
         <div class="chart-container update fade-in-delay-2">
-            <h3>🧠 Urge Control (Lower is Better)</h3>
+            <h3>🧠 Internal Distraction</h3>
             <canvas id="urgeChart"></canvas>
         </div>
 
@@ -57,7 +57,7 @@
         </div>
 
         <div class="chart-container fade-in-delay-3">
-            <h3>🔥 NoFap Clean Streak</h3>
+            <h3>🔥 One Good Deed Daily</h3>
             <canvas id="nofapChart"></canvas>
             <div class="streak-badge-container">
                 <div class="streak-badge" id="streakDisplay">Calculating...</div>
@@ -101,8 +101,8 @@
                 {
                     label: 'Quran Read',
                     data: data.quran_status,
-                    borderColor: '#4a2b03',
-                    borderDash: [5, 5],
+                    borderColor: '#875b03',
+                    
                     fill: false,
                     tension: 0
                 }
@@ -117,10 +117,10 @@
         data: {
             labels: data.labels,
             datasets: [{
-                label: 'Urge Level',
+                label: 'Distraction Level',
                 data: data.urge_levels,
-                borderColor: '#e74c3c',
-                backgroundColor: 'rgba(231, 76, 60, 0.2)',
+                borderColor: '#c3c908',
+                backgroundColor: 'rgba(195, 201, 8, 0.1)',
                 fill: true,
                 tension: 0.4
             }]
@@ -148,13 +148,13 @@
         data: {
             labels: data.labels,
             datasets: [{
-                label: 'Clean Day',
+                label: 'Deed Of The Day',
                 data: data.nofap_days,
-                backgroundColor: (ctx) => ctx.raw === 1 ? '#c3c908' : '#2a1802',
+                backgroundColor: '#c3c908',
                 borderRadius: 5
             }]
         },
-        options: { scales: { y: { display: false } } }
+        options: { scales: { y: { display: true } } }
     });
 </script>
 

@@ -3,7 +3,31 @@
 {% block content %}
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+{% if ayah %}
+<div class="ayah-card glass fade-in">
+    <div class="ayah-header">
+        <i class="fa-solid fa-moon gold"></i>
+        <h5 class="overline">Ayah of the Day</h5>
+        <i class="fa-solid fa-star gold"></i>
+    </div>
+    
+    <div class="ayah-content">
+        <h2 class="arabic-display">
+            {{ ayah.arabic }}
+        </h2>
+        
+        <p class="english-translation">
+            "{{ ayah.english }}"
+        </p>
+    </div>
+    
+    <div class="ayah-footer">
+        <span class="reference">
+            Surah {{ ayah.surah }} <span class="gold">•</span> Ayah {{ ayah.number }}
+        </span>
+    </div>
+</div>
+{% endif %}
 <div class="main-dashboard-wrapper">
     
     <div class="top-row fade-in">
@@ -91,7 +115,7 @@
                     </label>
                     <label class="custom-checkbox gold">
                         <input type="checkbox" name="nofap" {% if habit and habit.nofap %}checked{% endif %}>
-                        <span class="box-text">NoFap (Clean Day)</span>
+                        <span class="box-text">One Good Deed (Daily)</span>
                         <span class="check-mark-v2"></span>
                     </label>
 

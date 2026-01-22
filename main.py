@@ -78,6 +78,27 @@ def calculate_current_streak(habit_logs):
             
     return streak
 
+def get_daily_ayah():
+    # Get the day of the year (e.g., 22 for Jan 22nd)
+    day_of_year = datetime.now().timetuple().tm_yday
+    
+    # We fetch both Arabic and English Sahih International translation
+    url = f"https://api.alquran.cloud/v1/ayah/{day_of_year}/editions/quran-uthmani,en.sahih"
+    
+    try:
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            data = response.json()['data']
+            return {
+                'arabic': data[0]['text'],
+                'english': data[1]['text'],
+                'surah': data[0]['surah']['englishName'],
+                'number': data[0]['numberInSurah']
+            }
+    except Exception as e:
+        print(f"Error fetching Ayah: {e}")
+    return None
+
 
 def get_prayer_times(city="Mirpur", country="Pakistan"):
     try:
@@ -354,12 +375,14 @@ def dashboard():
             break
 
     prayer_times = get_prayer_times() # Fetch the times
+    ayah = get_daily_ayah()
     
     return render_template('dashboard.html', 
                            habit=habit, 
                            week_data=week_data, 
                            total_streak=total_streak, 
                            today=today,
+                           ayah=ayah,
                            prayer_times=prayer_times)
 
 @app.route('/logs', methods=['GET', 'POST'])

@@ -109,7 +109,7 @@ header {
 .input-group { margin-bottom: 25px; }
 .input-group label { 
     display: block; margin-bottom: 8px; font-size: 0.85rem; 
-    color: var(--gold); text-transform: uppercase; font-family: 'Rajdhani';
+    color: #ffffff; text-transform: uppercase; font-family: 'Rajdhani';
 }
 
 input[type="text"], input[type="email"], input[type="password"], select, textarea {
@@ -340,8 +340,8 @@ input[type="range"].premium-slider::-webkit-slider-thumb {
     /* FORM STYLING */
     .form-section { padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
     .input-group { margin-bottom: 25px; }
-    .input-group label { display: block; margin-bottom: 12px; font-size: 0.9rem; color: #aaa; font-family: 'Rajdhani'; text-transform: uppercase; letter-spacing: 1px; }
-    .gold-icon { color: var(--gold); margin-right: 8px; font-size: 0.8rem; }
+    .input-group label { display: block; margin-bottom: 12px; font-size: 0.9rem; color: #ffffff; font-family: 'Rajdhani'; text-transform: uppercase; letter-spacing: 1px; }
+    .gold-icon { color: #ffffff; margin-right: 8px; font-size: 0.8rem; }
 
     input[type="text"] {
         width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--earth); border-radius: 12px;
@@ -590,7 +590,7 @@ input[type="range"].premium-slider::-webkit-slider-thumb {
     .custom-checkbox input:checked ~ .check-mark-v2::after {
         content: '✔'; position: absolute; font-size: 12px; color: var(--void); left: 2px; top: -1px;
     }
-    .custom-checkbox input:checked ~ .box-text { color: var(--gold); font-weight: bold;  }
+    .custom-checkbox input:checked ~ .box-text { color: #f9f9f1; font-weight: bold;  }
 
     /* PRODUCTIVITY INPUT */
     .input-wrapper { display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; border: 1px solid var(--earth); }
@@ -649,7 +649,7 @@ input[type="range"].premium-slider::-webkit-slider-thumb {
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
     .span-2 { grid-column: span 2; }
     
-    .input-group label { display: block; margin-bottom: 10px; font-size: 0.9rem; color: #aaa; }
+    .input-group label { display: block; margin-bottom: 10px; font-size: 0.9rem; color: #ffffff; }
     
     /* Premium Select */
     .select-wrapper { position: relative; }
@@ -744,7 +744,7 @@ input[type="range"].premium-slider::-webkit-slider-thumb {
     .section-title { font-family: 'Rajdhani'; font-size: 1.4rem; color: #fff; margin-bottom: 25px; display: flex; align-items: center; gap: 12px; }
     
     .input-group { margin-bottom: 20px; }
-    .input-group label { display: block; margin-bottom: 8px; font-size: 0.85rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; }
+    .input-group label { display: block; margin-bottom: 8px; font-size: 0.85rem; color: #ffffff; text-transform: uppercase; letter-spacing: 1px; }
     
     .input-wrapper { position: relative; display: flex; align-items: center; }
     .input-wrapper i { position: absolute; left: 15px; color: var(--earth); }
@@ -930,7 +930,7 @@ input[type="range"].premium-slider::-webkit-slider-thumb {
     
     .input-wrapper input {
         width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--earth); border-radius: 12px;
-        padding: 14px 14px 14px 10px; color:  white; font-family: 'Outfit'; font-size: medium; outline: none; transition: 0.3s;
+        padding: 14px 14px 14px 35px; color:  white; font-family: 'Outfit'; font-size: medium; outline: none; transition: 0.3s;
     }
     .input-wrapper input:focus { border-color: var(--gold); box-shadow: 0 0 15px rgba(195, 201, 8, 0.1); }
 
@@ -1018,7 +1018,7 @@ input[type="range"].premium-slider::-webkit-slider-thumb {
     
     .input-wrapper input {
         width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--earth); border-radius: 12px;
-        padding: 14px 14px 14px 10px; color: white; font-family: 'Outfit'; outline: none; transition: 0.3s;
+        padding: 14px 14px 14px 35px; color: white; font-family: 'Outfit'; outline: none; transition: 0.3s;
     }
     .input-wrapper input:focus { border-color: var(--gold); box-shadow: 0 0 15px rgba(195, 201, 8, 0.1); }
 
@@ -1103,7 +1103,88 @@ input[type="range"].premium-slider::-webkit-slider-thumb {
 .use{
     text-transform: capitalize;
     font-family: 'Outfit';
-    font-size: 1.9rem;
     transition: 0.3s;
-    text-decoration: underline;
+    font-weight: bolder;
+    text-decoration:dotted;
+    line-height: 1px;
+    color: #d9ff00;
+    background-color: #5c494912;
+    padding-right: 10px;
+    padding-left: 10px;
+    border-radius: 5px;
+}
+
+/* --- AYAH OF THE DAY CARD --- */
+.ayah-card {
+    text-align: center;
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 40px !important;
+    position: relative;
+    border: 1px solid var(--border);
+    background: radial-gradient(circle at center, #0a1f1c 0%, var(--card-bg) 100%);
+}
+
+.ayah-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+/* ARABIC TYPOGRAPHY */
+.arabic-display {
+    font-family: 'Amiri', serif;
+    font-size: 2.2rem;
+    line-height: 2.2;
+    color: #fff;
+    margin-bottom: 20px;
+    direction: rtl; /* Ensures correct Arabic punctuation flow */
+    word-spacing: 5px;
+}
+
+.english-translation {
+    font-size: 1.1rem;
+    color: var(--text-main);
+    font-style: italic;
+    font-weight: 300;
+    max-width: 90%;
+    margin: 0 auto 20px;
+    line-height: 1.6;
+}
+
+.ayah-footer {
+    margin-top: 20px;
+}
+
+.reference {
+    font-family: 'Rajdhani';
+    font-size: 0.85rem;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 600px) {
+    .ayah-card {
+        padding: 25px 15px !important;
+        margin: 20px 0;
+    }
+
+    .arabic-display {
+        font-size: 1.6rem; /* Smaller Arabic for mobile */
+        line-height: 2;
+        margin-bottom: 15px;
+    }
+
+    .english-translation {
+        font-size: 0.95rem; /* Readable but compact */
+        line-height: 1.5;
+    }
+
+    .ayah-header i {
+        font-size: 0.7rem; /* Smaller moon/star icons */
+    }
 }
