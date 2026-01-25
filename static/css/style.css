@@ -1293,7 +1293,7 @@ input[type="range"].premium-slider::-webkit-slider-thumb {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
-    background: rgba(0,0,0,0.2);
+    background: black;
     display: flex;
     flex-direction: column;
     gap: 15px;
