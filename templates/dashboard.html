@@ -3,6 +3,16 @@
 {% block content %}
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+{% if not current_user.is_authenticated %}
+<div class="guest-banner glass fade-in">
+    <div class="banner-content">
+        <i class="fa-solid fa-circle-info info-icon"></i>
+        <span><strong>Assalamu Alaikum!</strong> You are in Guest Mode. Your progress will not be saved until you <a href="{{ url_for('login') }}" class="gold-link">Login</a>.</span>
+    </div>
+</div>
+{% endif %}
+
 {% if ayah %}
 <div class="ayah-card glass fade-in">
     <div class="ayah-header">
@@ -28,6 +38,7 @@
     </div>
 </div>
 {% endif %}
+
 <div class="main-dashboard-wrapper">
     
     <div class="top-row fade-in">
@@ -98,7 +109,9 @@
                     <div class="checkbox-list">
                         {% for p in ['fajr', 'zuhr', 'asr', 'maghrib', 'isha'] %}
                         <label class="custom-checkbox">
-                            <input type="checkbox" name="{{ p }}" {% if habit and habit[p] %}checked{% endif %}>
+                            <input type="checkbox" name="{{ p }}" 
+                                   {% if habit and habit[p] %}checked{% endif %}
+                                   {% if not current_user.is_authenticated %}disabled{% endif %}>
                             <span class="box-text">{{ p|capitalize }}</span>
                             <span class="check-mark-v2"></span>
                         </label>
@@ -109,12 +122,16 @@
                 <div class="habit-group glass">
                     <h3><i class="fa-solid fa-shield-halved"></i> Discipline</h3>
                     <label class="custom-checkbox gold">
-                        <input type="checkbox" name="quran" {% if habit and habit.quran %}checked{% endif %}>
+                        <input type="checkbox" name="quran" 
+                               {% if habit and habit.quran %}checked{% endif %}
+                               {% if not current_user.is_authenticated %}disabled{% endif %}>
                         <span class="box-text">Quran Reading</span>
                         <span class="check-mark-v2"></span>
                     </label>
                     <label class="custom-checkbox gold">
-                        <input type="checkbox" name="nofap" {% if habit and habit.nofap %}checked{% endif %}>
+                        <input type="checkbox" name="nofap" 
+                               {% if habit and habit.nofap %}checked{% endif %}
+                               {% if not current_user.is_authenticated %}disabled{% endif %}>
                         <span class="box-text">One Good Deed (Daily)</span>
                         <span class="check-mark-v2"></span>
                     </label>
@@ -123,21 +140,51 @@
                         <h3><i class="fa-solid fa-code"></i> Productivity</h3>
                         <div class="input-wrapper">
                             <input style="padding-left: 10px;" type="number" step="0.5" min="0" oninput="if(value>24)value=24; if(value<0)value=0;" max="24" id="coding_hours" name="coding_hours"
-                                value="{{ '%.1f' % (habit.coding_hours if habit else 0.0) }}">
+                                value="{{ '%.1f' % (habit.coding_hours if habit else 0.0) }}"
+                                {% if not current_user.is_authenticated %}disabled{% endif %}>
                             <span class="unit">Hours Coding</span>
                         </div>
                     </div>
                 </div>
             </div>
 
+            {% if current_user.is_authenticated %}
             <button type="submit" class="save-btn-premium">
                 <i class="fa-solid fa-floppy-disk"></i> Save Today's Progress
             </button>
+            {% else %}
+            <div class="login-prompt-btn">
+                <a href="{{ url_for('login') }}" class="save-btn-premium login-link-btn">
+                    <i class="fa-solid fa-right-to-bracket"></i> Login to Save Progress
+                </a>
+            </div>
+            {% endif %}
         </form>
     </div>
 </div>
 
-
+<style>
+    /* Styling for the new Guest elements */
+    .guest-banner {
+        background: rgba(195, 201, 8, 0.15);
+        border: 1px solid #c3c908;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .info-icon { color: #c3c908; margin-right: 8px; }
+    .gold-link { color: #c3c908; font-weight: bold; text-decoration: underline; }
+    .login-link-btn {
+        text-decoration: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+    input:disabled { cursor: not-allowed; opacity: 0.6; }
+    .custom-checkbox input:disabled + .box-text { color: #888; }
+</style>
 
 <script>
     // Share function logic
@@ -163,6 +210,7 @@
         };
 
         function toMins(timeStr) {
+            if (!timeStr || !timeStr.includes(':')) return 0;
             const [hrs, mins] = timeStr.split(':').map(Number);
             return hrs * 60 + mins;
         }
@@ -192,11 +240,12 @@
         let nextPrayerName = "";
 
         const prayerDates = Object.entries(timings).map(([name, time]) => {
+            if (!time || !time.includes(':')) return { name, date: null };
             const [hrs, mins] = time.split(':').map(Number);
             const d = new Date();
             d.setHours(hrs, mins, 0);
             return { name, date: d };
-        });
+        }).filter(p => p.date !== null);
 
         for (let prayer of prayerDates) {
             if (prayer.date > now) {
@@ -206,20 +255,22 @@
             }
         }
 
-        if (!nextPrayerTime) {
+        if (!nextPrayerTime && prayerDates.length > 0) {
             nextPrayerName = "Fajr (Tomorrow)";
             nextPrayerTime = new Date(prayerDates[0].date);
             nextPrayerTime.setDate(nextPrayerTime.getDate() + 1);
         }
 
-        const diff = nextPrayerTime - now;
-        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const mins = Math.floor((diff / (1000 * 60)) % 60);
-        const secs = Math.floor((diff / 1000) % 60);
+        if (nextPrayerTime) {
+            const diff = nextPrayerTime - now;
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const mins = Math.floor((diff / (1000 * 60)) % 60);
+            const secs = Math.floor((diff / 1000) % 60);
 
-        document.getElementById('next-prayer-label').innerText = `Time until ${nextPrayerName}`;
-        document.getElementById('countdown-timer').innerText =
-            `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            document.getElementById('next-prayer-label').innerText = `Time until ${nextPrayerName}`;
+            document.getElementById('countdown-timer').innerText =
+                `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
     }
 
     document.addEventListener('DOMContentLoaded', () => {

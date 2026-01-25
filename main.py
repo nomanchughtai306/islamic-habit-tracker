@@ -13,9 +13,16 @@ from PIL import Image
 from functools import wraps
 from flask import abort
 import requests
-
 from functools import wraps
 from flask import abort
+import os
+from flask import Flask, render_template, request, jsonify
+from dotenv import load_dotenv
+from google import genai
+from google.genai import types  # <--- Add this import
+
+load_dotenv()
+chat_histories = {}
 
 # The Gatekeeper Function
 def admin_required(f):
@@ -37,6 +44,19 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'dev-secret-key-123' # Change this in production
 app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=30)
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "connect_args": {
+        "timeout": 15,
+        "check_same_thread": False # Recommended for Flask + SQLite
+    }
+}
+app.secret_key = os.getenv("SECRET_KEY", "dev-secret-123")
+
+# Use the exact same config that worked in test.py
+client = genai.Client(
+    api_key=os.getenv("GOOGLE_API_KEY"),
+    http_options={'api_version': 'v1'}
+)
 
 # Initialize extensions
 db = SQLAlchemy(app)
@@ -164,7 +184,7 @@ def admin_dashboard():
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 class DailyHabit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -314,67 +334,75 @@ def logout():
 
 
 @app.route('/', methods=['GET', 'POST'])
-@login_required
 def dashboard():
     today = date.today()
-    
-    # 1. Handle Form Submission (Save Progress)
-    # Using DailyHabit as your model name based on your working code
-    habit = DailyHabit.query.filter_by(date=today, user_id=current_user.id).first()
-    if not habit:
-        habit = DailyHabit(date=today, user_id=current_user.id)
-        db.session.add(habit)
-     
-
-    if request.method == 'POST':
-        habit.fajr = 'fajr' in request.form
-        habit.zuhr = 'zuhr' in request.form
-        habit.asr = 'asr' in request.form
-        habit.maghrib = 'maghrib' in request.form
-        habit.isha = 'isha' in request.form
-        habit.quran = 'quran' in request.form
-        habit.nofap = 'nofap' in request.form
-        habit.coding_hours = float(request.form.get('coding_hours', 0) or 0)
-        db.session.commit()
-        flash('Progress saved!', 'success')
-        return redirect(url_for('dashboard'))
-
-    # 2. Logic for the 7-Day Smart Streak Visual
+    habit = None
     week_data = []
-    for i in range(6, -1, -1):
-        check_date = today - timedelta(days=i)
-        log = DailyHabit.query.filter_by(user_id=current_user.id, date=check_date).first()
-        
-        status = 'none'
-        if log:
-            # Check if all 7 main religious/spiritual habits are True
-            is_full = all([log.fajr, log.zuhr, log.asr, log.maghrib, log.isha, log.quran, log.nofap])
-            status = 'success' if is_full else 'partial'
-        
-        week_data.append({
-            'day_name': check_date.strftime('%a'),
-            'status': status
-        })
-
-    # 3. Calculate Burning Streak (How many consecutive 'success' days)
     total_streak = 0
-    curr_check = today
-    
-    while True:
-        log = DailyHabit.query.filter_by(user_id=current_user.id, date=curr_check).first()
-        is_full = log and all([log.fajr, log.zuhr, log.asr, log.maghrib, log.isha, log.quran, log.nofap])
-        
-        if is_full:
-            total_streak += 1
-            curr_check -= timedelta(days=1)
-        else:
-            # If today isn't perfect yet, don't break the streak, just check yesterday
-            if curr_check == today:
-                curr_check -= timedelta(days=1)
-                continue
-            break
 
-    prayer_times = get_prayer_times() # Fetch the times
+    # --- 1. LOGGED-IN USER LOGIC ---
+    if current_user.is_authenticated:
+        # Handle Database loading/saving only for logged-in users
+        habit = DailyHabit.query.filter_by(date=today, user_id=current_user.id).first()
+        
+        # Initialize habit if it doesn't exist for today
+        if not habit:
+            habit = DailyHabit(date=today, user_id=current_user.id)
+            db.session.add(habit)
+            db.session.commit() # Save the skeleton record
+
+        # Handle Form Submission
+        if request.method == 'POST':
+            habit.fajr = 'fajr' in request.form
+            habit.zuhr = 'zuhr' in request.form
+            habit.asr = 'asr' in request.form
+            habit.maghrib = 'maghrib' in request.form
+            habit.isha = 'isha' in request.form
+            habit.quran = 'quran' in request.form
+            habit.nofap = 'nofap' in request.form
+            habit.coding_hours = float(request.form.get('coding_hours', 0) or 0)
+            db.session.commit()
+            flash('Progress saved!', 'success')
+            return redirect(url_for('dashboard'))
+
+        # 7-Day Visual Data
+        for i in range(6, -1, -1):
+            check_date = today - timedelta(days=i)
+            log = DailyHabit.query.filter_by(user_id=current_user.id, date=check_date).first()
+            status = 'none'
+            if log:
+                is_full = all([log.fajr, log.zuhr, log.asr, log.maghrib, log.isha, log.quran, log.nofap])
+                status = 'success' if is_full else 'partial'
+            week_data.append({'day_name': check_date.strftime('%a'), 'status': status})
+
+        # Calculate Streak
+        curr_check = today
+        while True:
+            log = DailyHabit.query.filter_by(user_id=current_user.id, date=curr_check).first()
+            is_full = log and all([log.fajr, log.zuhr, log.asr, log.maghrib, log.isha, log.quran, log.nofap])
+            if is_full:
+                total_streak += 1
+                curr_check -= timedelta(days=1)
+            else:
+                if curr_check == today:
+                    curr_check -= timedelta(days=1)
+                    continue
+                break
+    
+    # --- 2. GUEST LOGIC ---
+    else:
+        # For guests, we show empty placeholders or redirect them if they try to POST
+        if request.method == 'POST':
+            flash('Please login to save your progress!', 'info')
+            return redirect(url_for('login'))
+        
+        # Fill week_data with 'none' status so the UI doesn't break
+        for i in range(6, -1, -1):
+            check_date = today - timedelta(days=i)
+            week_data.append({'day_name': check_date.strftime('%a'), 'status': 'none'})
+
+    # --- 3. PUBLIC DATA (Fetched for everyone) ---
+    prayer_times = get_prayer_times() 
     ayah = get_daily_ayah()
     
     return render_template('dashboard.html', 
@@ -385,6 +413,44 @@ def dashboard():
                            ayah=ayah,
                            prayer_times=prayer_times)
 
+@app.route('/api/chat', methods=['POST'])
+def chat_with_ai():
+    data = request.get_json()
+    user_message = data.get('message', '')
+    user_id = 1 
+
+    # We use a global chat session dictionary to keep the 'Chat' object alive
+    # This is more reliable than manually managing the history list
+    if user_id not in chat_histories:
+        chat_histories[user_id] = client.chats.create(
+            model="gemini-2.5-flash",
+            config=types.GenerateContentConfig(
+                # We put the instruction in the prompt if config is still buggy
+                temperature=0.7
+            )
+        )
+
+    try:
+        # Wrap the message with the persona to ensure it sticks
+        contextual_message = f"(Mentor Instruction: Be concise and use Islamic wisdom) {user_message}"
+        
+        # Send message through the persistent chat object
+        chat_session = chat_histories[user_id]
+        response = chat_session.send_message(contextual_message)
+        
+        return jsonify({'response': response.text})
+
+    except Exception as e:
+        print(f"❌ AI ERROR: {str(e)}")
+        # If the session expired or failed, reset it and try one more time
+        chat_histories[user_id] = client.chats.create(model="gemini-2.5-flash")
+        return jsonify({'response': "I'm resetting our connection. Please send that once more."}), 500
+
+@app.route('/api/chat/clear', methods=['POST'])
+def clear_chat():
+    user_id = 1 # Use current_user.id
+    chat_histories[user_id] = []
+    return jsonify({'status': 'cleared'})
 @app.route('/logs', methods=['GET', 'POST'])
 @login_required
 def logs():

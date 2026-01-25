@@ -59,6 +59,33 @@
             </div>
         </nav>
     </header>
+    
+    <div id="ai-chat-widget">
+    <button id="chat-toggle-btn" onclick="toggleChat()">
+        <span style="font-size: 1.5rem;">🤖</span>
+    </button>
+    
+    <div id="chat-window" class="hidden">
+        <div class="chat-header">
+            <span>Islamic AI Assistant</span>
+            <div class="header-actions">
+                <button onclick="clearChat()" title="Clear Conversation" class="clear-btn">🔄</button>
+                <button onclick="toggleChat()" class="close-chat">&times;</button>
+            </div>
+        </div>
+        
+        <div id="chat-messages">
+            <div class="bot-message">
+                Assalamu Alaikum! I am your AI companion. I now remember our conversation! Ask me anything.
+            </div>
+        </div>
+        
+        <div class="chat-input-area">
+            <input type="text" id="user-input" placeholder="Type your question..." onkeypress="handleEnter(event)">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+</div>
 
     <main class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -93,6 +120,85 @@
                 }, 5000);
             });
         });
+function toggleChat() {
+    const chatWindow = document.getElementById('chat-window');
+    chatWindow.classList.toggle('hidden');
+}
+
+function handleEnter(event) {
+    if (event.key === "Enter") {
+        sendMessage();
+    }
+}
+
+// --- NEW: Function to Clear Chat History ---
+async function clearChat() {
+    if (!confirm("Start a new conversation? This will clear our history.")) return;
+
+    try {
+        const response = await fetch('/api/chat/clear', { method: 'POST' });
+        if (response.ok) {
+            const messagesContainer = document.getElementById('chat-messages');
+            messagesContainer.innerHTML = `
+                <div class="bot-message">
+                    History cleared. How else can I assist you in your journey?
+                </div>`;
+        }
+    } catch (error) {
+        console.error("Error clearing history:", error);
+    }
+}
+
+async function sendMessage() {
+    const inputField = document.getElementById('user-input');
+    const messageText = inputField.value.trim();
+    const messagesContainer = document.getElementById('chat-messages');
+
+    if (!messageText) return;
+
+    // 1. Add User Message to UI
+    const userDiv = document.createElement('div');
+    userDiv.className = 'user-message';
+    userDiv.textContent = messageText;
+    messagesContainer.appendChild(userDiv);
+    
+    inputField.value = '';
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    // 2. Add "Typing..." placeholder with a unique ID for this specific message
+    const tempId = 'loading-' + Date.now();
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'bot-message';
+    loadingDiv.textContent = '...';
+    loadingDiv.id = tempId;
+    messagesContainer.appendChild(loadingDiv);
+
+    try {
+        // 3. Send to Flask Backend (History is handled automatically by Python)
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: messageText }),
+        });
+
+        const data = await response.json();
+
+        // 4. Replace Loading with Real Answer
+        const loadingMsg = document.getElementById(tempId);
+        if (loadingMsg) {
+            loadingMsg.textContent = data.response;
+        }
+        
+    } catch (error) {
+        const loadingMsg = document.getElementById(tempId);
+        if (loadingMsg) {
+            loadingMsg.textContent = "I'm having trouble connecting to the wisdom center.";
+        }
+    }
+
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
     </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
