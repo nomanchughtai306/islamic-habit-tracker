@@ -22,7 +22,30 @@ from google import genai
 from google.genai import types  # <--- Add this import
 
 load_dotenv()
+app = Flask(__name__)
 chat_histories = {}
+# --- 1. Configuration ---
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY')
+
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(BASE_DIR, "tracker.db")}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=30)
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "connect_args": {
+        "timeout": 15,
+        "check_same_thread": False # Recommended for Flask + SQLite
+    }
+}
+
+# Use the exact same config that worked in test.py
+client = genai.Client(
+    api_key=os.getenv("GOOGLE_API_KEY"),
+    http_options={'api_version': 'v1'}
+)
+
 
 # The Gatekeeper Function
 def admin_required(f):
@@ -35,28 +58,6 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# --- 1. Configuration ---
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(BASE_DIR, "tracker.db")}'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'dev-secret-key-123' # Change this in production
-app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=30)
-app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    "connect_args": {
-        "timeout": 15,
-        "check_same_thread": False # Recommended for Flask + SQLite
-    }
-}
-app.secret_key = os.getenv("SECRET_KEY", "dev-secret-123")
-
-# Use the exact same config that worked in test.py
-client = genai.Client(
-    api_key=os.getenv("GOOGLE_API_KEY"),
-    http_options={'api_version': 'v1'}
-)
 
 # Initialize extensions
 db = SQLAlchemy(app)
@@ -417,7 +418,7 @@ def dashboard():
 def chat_with_ai():
     data = request.get_json()
     user_message = data.get('message', '')
-    user_id = 1 
+    user_id = current_user.id 
 
     # We use a global chat session dictionary to keep the 'Chat' object alive
     # This is more reliable than manually managing the history list
@@ -448,7 +449,7 @@ def chat_with_ai():
 
 @app.route('/api/chat/clear', methods=['POST'])
 def clear_chat():
-    user_id = 1 # Use current_user.id
+    user_id = current_user.id# Use current_user.id
     chat_histories[user_id] = []
     return jsonify({'status': 'cleared'})
 @app.route('/logs', methods=['GET', 'POST'])
@@ -575,5 +576,5 @@ def progress():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)
     
