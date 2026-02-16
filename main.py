@@ -217,6 +217,10 @@ class Reflection(db.Model):
 
 # --- 3. Auth Routes ---
 
+@app.route('/val')
+def val():
+    return render_template('val.html', name="Cutiepie")
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':

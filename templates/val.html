@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Surprise For You</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Sacramento&display=swap');
+
+        :root {
+            --primary-pink: #d4175e;
+            --soft-pink: #ff6b9d;
+            --bg-gradient: linear-gradient(135deg, #f13184 0%, #ff4992 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        /* Animated Background Hearts */
+        #hearts-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-heart {
+            position: absolute;
+            bottom: -50px;
+            color: rgba(255, 107, 157, 0.2);
+            animation: floatUp 8s infinite ease-in;
+            user-select: none;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            20% { opacity: 0.4; }
+            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Screen Transitions */
+        .screen {
+            display: none;
+            z-index: 10;
+            width: 100%;
+            padding: 20px;
+            justify-content: center;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Premium Card Styling */
+        .screen-content {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 40px;
+            padding: 50px 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .main-img {
+            width: 250px;
+            height: 250px;
+            object-fit: cover;
+            object-fit: contain;
+            border-radius: 50%;
+            margin-bottom: 25px;
+            border: 5px solid #fff;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: var(--primary-pink);
+            margin-bottom: 15px;
+        }
+
+        p {
+            font-size: 1.3rem;
+            color: #444;
+            margin-bottom: 30px;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--soft-pink) 0%, var(--primary-pink) 100%);
+            color: white;
+            border: none;
+            padding: 16px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s transform ease, 0.3s box-shadow ease;
+            box-shadow: 0 5px 15px rgba(212, 23, 94, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(212, 23, 94, 0.5);
+        }
+
+        /* Language Cards */
+        .lang-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .lang-item {
+            background: #fff5f8;
+            padding: 12px;
+            border-radius: 15px;
+            border: 1px solid #ffe1eb;
+        }
+
+        .lang-label { font-size: 0.7rem; color: #999; text-transform: uppercase; }
+        .lang-text { font-family: 'Playfair Display'; color: var(--primary-pink); font-weight: bold; }
+
+        /* Final Letter */
+        .letter-text {
+            text-align: left;
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #333;
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .sig {
+            font-family: 'Sacramento', cursive;
+            font-size: 2.5rem;
+            color: var(--primary-pink);
+            text-align: right;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="hearts-container"></div>
+
+    <div id="scr-1" class="screen active">
+        <div class="screen-content">
+            <img src="https://media.giphy.com/media/WK7omsLop0431tZjXb/giphy.gif?cid=bb5a1c3aq0lb4m8flu5kscgtd6ns37eefm4nrw1k5rc7midd&ep=v1_gifs_trending&rid=giphy.gif&ct=g" class="main-img" alt="Panda Ask">
+            <h1>Hey Meeshu..</h1>
+            <p>I want to ask you something special. Can I?</p>
+            <div class="btn-group">
+                <button onclick="nav('scr-3')">Yes, of course! ❤️</button>
+                <button onclick="nav('scr-2')" style="background: #ddd; color: #555; box-shadow: none;">No</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="scr-2" class="screen">
+        <div class="screen-content">
+            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExeG5zMWZyOWRpb3JvbHg3OWxjc2xmeWdqbXg3OWx1bXpqN284M2F3dCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/d2lcHJTG5Tscg/giphy.gif" class="main-img" alt="Angry Kitten">
+            <h1>How Dare You!</h1>
+            <p>Wrong answer! I'll give you another chance to say Yes. 😤</p>
+            <button onclick="nav('scr-1')">Okay, let's try again 🔄</button>
+        </div>
+    </div>
+
+    <div id="scr-3" class="screen">
+        <div class="screen-content">
+            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExN25hdHhpN2V6OGY0bDhxdjI3MHlnd3l0ZjM0am12dWY3YTd4NWIyNCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3o7qE2VAxuXWeyvJIY/giphy.gif" class="main-img" alt="Hugging Pandas">
+            <h1>Yay! 🥰</h1>
+            <p>You're the best. Now, are you ready for the big question?</p>
+            <button onclick="nav('scr-4')">I'm Ready! ✨</button>
+        </div>
+    </div>
+
+    <div id="scr-4" class="screen">
+        <div class="screen-content">
+            <img src="https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3ODU4M2tjOXBhY3g0eTdkc2hteXFzM3J2NTZqNWY3OTk2NmhlNTZvZCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/MfhUoRSp05AxeSIoSW/giphy.gif" class="main-img" alt="Love">
+            <h1>Will you be my Valentine?</h1>
+            <div class="btn-group">
+                <button onclick="nav('scr-5')">A) Yes! 💝</button>
+                <button onclick="nav('scr-5')">B) Absolutely! 💖</button>
+                <button onclick="nav('scr-5')">C) Of Course! 💕</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="scr-5" class="screen">
+        <div class="screen-content">
+            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbHQ0NTV6czB1aGh3ZjR4ZHRyYjVuMXh5aWdna2VuYjVyOGl4aGd3ZyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/8QbwUh40Hl96yMgvOx/giphy.gif" class="main-img" alt="Flowers">
+            <h1>These are for you! 💐</h1>
+            <p>I love you in every language...</p>
+            <div class="lang-grid">
+                <div class="lang-item"><div class="lang-label">Urdu</div><div class="lang-text">میں تم سے پیار کرتا ہوں</div></div>
+                <div class="lang-item"><div class="lang-label">French</div><div class="lang-text">Je T'aime</div></div>
+                <div class="lang-item"><div class="lang-label">Spanish</div><div class="lang-text">Te Amo</div></div>
+                <div class="lang-item"><div class="lang-label">Hindi</div><div class="lang-text">मैं तुमसे प्यार करता हूँ</div></div>
+            </div>
+            <button onclick="nav('scr-6')" style="margin-top: 25px;">Open My Letter 💌</button>
+        </div>
+    </div>
+
+    <div id="scr-6" class="screen">
+        <div class="screen-content">
+            <h1>My Dearest Valentine</h1>
+            <div class="letter-text">
+                <p>To my favorite person,</p><br>
+                <strong><p>Meeshu</p></strong>
+                <p>Every single day with you feels like a beautiful dream I never want to wake up from. Your smile is my favorite sight, and your voice is my favorite sound, your eyes are prettiest in this universe</p><br>
+                <p>Thank you for being my partner and my soulmate. I promise to cherish every moment we spend together today and forever.</p>
+                <p style="margin-top: 15px;">You are my world. i love you so much ❤️</p>
+                <div class="sig">Forever Yours, Asfii</div>
+                <button onclick="nav('scr-1')">🔄</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Floating Hearts Logic
+        const container = document.getElementById('hearts-container');
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'floating-heart';
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 3 + 5) + 's';
+            heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+            container.appendChild(heart);
+            setTimeout(() => heart.remove(), 8000);
+        }
+        setInterval(createHeart, 500);
+
+        // Navigation Logic
+        function nav(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            window.scrollTo(0,0);
+        }
+    </script>
+</body>
+</html>
